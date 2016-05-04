@@ -59,6 +59,9 @@ IDE	=	{L}{A}*
 CP	=	(u|U|L)
 SP	=	(u8|u|U|L)
 ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))*/
+CP	=	(u|U|L)
+SP	=	(u8|u|U|L)
+ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
 
 %%
 
@@ -120,7 +123,7 @@ ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))*/
 	{HP}{H}+{IS}?						{ return symbol(sym.I_CONSTANT); }
 	{NZ}{D}*{IS}?						{ return symbol(sym.I_CONSTANT); }
 	"0"{O}*{IS}?						{ return symbol(sym.I_CONSTANT); }
-	/*{CP}?"'"([^'\\\n]|{ES})+"'"			{ return symbol(sym.I_CONSTANT); }*/
+	{CP}?"'"([^'\\\n]|{ES})+"'"			{ return symbol(sym.I_CONSTANT); }
 	
 	{D}+{E}{FS}?						{ return symbol(sym.F_CONSTANT); }
 	{D}*"."{D}+{E}?{FS}?				{ return symbol(sym.F_CONSTANT); }
@@ -129,7 +132,7 @@ ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))*/
 	{HP}{H}*"."{H}+{P}{FS}?				{ return symbol(sym.F_CONSTANT); }
 	{HP}{H}+"."{P}{FS}?					{ return symbol(sym.F_CONSTANT); }
 	
-	/*({SP}?\"([^"\\\n]|{ES})*\"{WS}*)+	{ return symbol(sym.STRING_LITERAL); }*/
+	({SP}?\"([^\"\\\n]|{ES})*\"{WS}*)+	{ return symbol(sym.STRING_LITERAL); }
 	
 	"..."				{ return symbol(sym.ELLIPSIS); }
 	">>="				{ return symbol(sym.RIGHT_ASSIGN); }
