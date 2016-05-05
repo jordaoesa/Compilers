@@ -19,10 +19,10 @@ import java_cup.runtime.*;
   StringBuffer string = new StringBuffer();
 
   private Symbol symbol(int type) {
-    return new Symbol(type, yyline, yycolumn);
+    return new Symbol(type, yyline+1, yycolumn+1);
   }
   private Symbol symbol(int type, Object value) {
-    return new Symbol(type, yyline, yycolumn, value);
+    return new Symbol(type, yyline+1, yycolumn+1, value);
   }
   private void reportError(int line, String message) {
     throw new RuntimeException("Erro lexico na linha " + line + ": " + message);

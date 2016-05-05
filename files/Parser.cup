@@ -15,8 +15,8 @@ parser code {:
    
         if (info instanceof java_cup.runtime.Symbol) {
             java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-            m.append(" na linha " + (s.left+1));
-            m.append(", coluna " + (s.right+1));
+            m.append(" na linha " + (s.left));
+            m.append(", coluna " + (s.right));
         }
         m.append(" : " + message);
         System.err.println(m);
