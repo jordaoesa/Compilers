@@ -6,7 +6,7 @@
 #include<oioi>
 
 int funcao(){
-	int 2 = 0;
+	int x = 0;
 	float x = 0;
 	double x = 0;
 	char x = '0';
