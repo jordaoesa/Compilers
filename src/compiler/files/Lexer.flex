@@ -183,6 +183,7 @@ ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
 	"^"					{ return symbol(sym.XOR_BINARY); }
 	"|"					{ return symbol(sym.OR_BINARY); }
 	"?"					{ return symbol(sym.QUESTION); }
+	"#"					{ return symbol(sym.POUND); }
 	
 	{WS}+				{ /* whitespace separates tokens */ }
 	.					{ /* discard bad characters */ }
