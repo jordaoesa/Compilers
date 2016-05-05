@@ -14,6 +14,7 @@ echo ">>> JCUP Executed <<<"
 echo
 echo ">>> Moving Files <<<"
 echo
+
 mv -f Lexer.java ./../generated/
 mv -f Parser.java ./../generated/
 mv -f sym.java ./../generated/

@@ -8,14 +8,25 @@ import java_cup.runtime.*;
 
 parser code {:
 
-    public void report_error(String message, Object info)  {
-        System.out.println("Erro Reportado: " + message);
+  
+  public void report_error(String message, Object info) {
+   
+        StringBuffer m = new StringBuffer("Erro");
+   
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            m.append(" na linha " + (s.left+1));
+            m.append(", coluna " + (s.right+1));
+        }
+        m.append(" : " + message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
     }
     
-	public void yyerror(String message){
-		System.out.println("Warning - " + message);
-	}
-
 :};
 
 terminal	IDENTIFIER, I_CONSTANT, F_CONSTANT, STRING_LITERAL, FUNC_NAME, SIZEOF;
@@ -33,10 +44,10 @@ terminal	STRUCT, UNION, ENUM, ELLIPSIS;
 
 terminal	CASE, DEFAULT, IF, ELSE, SWITCH, WHILE, DO, FOR, GOTO, CONTINUE, BREAK, RETURN;
 
-terminal	ALIGNAS, ALIGNO, ALIGNOF, ATOMIC, GENERIC, NORETURN, STATIC_ASSERT, THREAD_LOCAL;
+terminal	ALIGNAS, ALIGNOF, ATOMIC, GENERIC, NORETURN, STATIC_ASSERT, THREAD_LOCAL;
 
 /* novos coisinhas */
-terminal	DOT, SEMICOLON, COMMA, COLON, ASSIGNMENT, QUESTION, NEG, POUND;
+terminal	DOT, SEMICOLON, COMMA, COLON, ASSIGNMENT, QUESTION, NEG, POUND, INCLUDE;
 terminal	LEFT_PARENTESIS, RIGHT_PARENTESIS, LEFT_SQ_BRACK, RIGHT_SQ_BRACK, LEFT_BRACKET, RIGHT_BRACKET;
 terminal	AND_BINARY, NEG_BINARY, MINUS, PLUS, TIMES, DIV, MOD, LESS_THAN, GREATER_THAN, XOR_BINARY, OR_BINARY;
 
@@ -58,9 +69,19 @@ non terminal direct_abstract_declarator, initializer, initializer_list, designat
 non terminal designator, static_assert_declaration, statement, labeled_statement, compound_statement;
 non terminal block_item_list, block_item, expression_statement, selection_statement, iteration_statement;
 non terminal jump_statement, translation_unit, external_declaration, function_definition, declaration_list;
+non terminal include, includes;
 
 
 start with translation_unit;
+
+includes
+	::= include
+	| include includes
+	;
+
+include
+	::= POUND INCLUDE LESS_THAN IDENTIFIER GREATER_THAN /* regra para o include */
+	;
 
 primary_expression
 	::= IDENTIFIER
@@ -549,7 +570,8 @@ jump_statement
 	;
 
 translation_unit
-	::= external_declaration
+	::= includes
+	| external_declaration
 	| translation_unit external_declaration
 	;
 

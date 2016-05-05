@@ -24,6 +24,9 @@ import java_cup.runtime.*;
   private Symbol symbol(int type, Object value) {
     return new Symbol(type, yyline, yycolumn, value);
   }
+  private void reportError(int line, String message) {
+    throw new RuntimeException("Erro lexico na linha " + line + ": " + message);
+  }
   private int yywrap(){
     return 1;
   }
@@ -50,7 +53,7 @@ E	=	([Ee][+-]?{D}+)
 P	=	([Pp][+-]?{D}+)
 FS	=	(f|F|l|L)
 IS	=	(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))
-WS	=	[ \t\v\n\f]
+WS	=	[ \t\n\f\r]
 CM	=	"/*" [^*] ~"*/" | "/*" "*"+ "/"
 
 IDE	=	{L}{A}*
@@ -58,10 +61,11 @@ IDE	=	{L}{A}*
 /* will never be used
 CP	=	(u|U|L)
 SP	=	(u8|u|U|L)
-ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))*/
+ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))
+*/
 CP	=	(u|U|L)
 SP	=	(u8|u|U|L)
-ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
+ES	=	(\\([\'\"\?\\nrtfabv]|{O}{1,3}|x{H}+))
 
 %%
 
@@ -69,6 +73,7 @@ ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
 
 	"//".*                  { /* consume //-comment */ }
 	
+	"include"				{ return symbol(sym.INCLUDE); }
 	"auto"					{ return symbol(sym.AUTO); }
 	"break"					{ return symbol(sym.BREAK); }
 	"case"					{ return symbol(sym.CASE); }
@@ -104,7 +109,7 @@ ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
 	"volatile"				{ return symbol(sym.VOLATILE); }
 	"while"					{ return symbol(sym.WHILE); }
 	"_Alignas"              { return symbol(sym.ALIGNAS); }
-	"_Alignof"              { return symbol(sym.ALIGNO); }
+	"_Alignof"              { return symbol(sym.ALIGNOF); }
 	"_Atomic"               { return symbol(sym.ATOMIC); }
 	"_Bool"                 { return symbol(sym.BOOL); }
 	"_Complex"              { return symbol(sym.COMPLEX); }
@@ -186,8 +191,8 @@ ES	=	(\\([\'\"\?\\nrt]|{O}{1,3}|x{H}+))
 	"#"					{ return symbol(sym.POUND); }
 	
 	{WS}+				{ /* whitespace separates tokens */ }
-	.					{ /* discard bad characters */ }
+	/*.					{ /* discard bad characters */ }*/
 }
 
-[^] { throw new Error("Illegal character: "+yytext()+" at line "+(yyline+1)+", column "+(yycolumn+1) ); }
-<<EOF>>					{ return symbol(sym.EOF); }
+/* Entrada invalida */
+[^] { reportError(yyline+1, "Caractere invalido \"" + yytext() + "\""); }
