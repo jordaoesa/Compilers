@@ -2,14 +2,14 @@ package compiler.main;
 
 import java.io.FileReader;
 
-import compiler.generated.Lexer;
-import compiler.generated.Parser;
+import compiler.analysis.generated.Lexer;
+import compiler.analysis.generated.Parser;
 import java_cup.runtime.Symbol;
 
 public class Main {
 
 	public static void main(String[] args) {
-		String prog = "src/compiler/files/prog.c";
+		String prog = "files/prog.c";
 		
 		try{
 

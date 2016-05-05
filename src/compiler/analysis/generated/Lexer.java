@@ -4,7 +4,7 @@
  * Especificacao Lexica
  * @author jordaoesa
  */
-package compiler.generated;
+package compiler.analysis.generated;
 
 import java_cup.runtime.*;
 
