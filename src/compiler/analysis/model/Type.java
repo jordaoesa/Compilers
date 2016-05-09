@@ -18,7 +18,13 @@ public class Type {
 	
 	@Override
 	public String toString() {
-		return "{ " + getName() + " }";
+		return "{ Type " + getName() + " }";
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		Type other = (Type) obj;
+		return this.getName().equals(other.getName());
 	}
 
 }

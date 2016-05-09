@@ -5,31 +5,35 @@
 package compiler.analysis.generated;
 
 import java_cup.runtime.*;
+import compiler.analysis.SemanticAnalyser;
+import compiler.analysis.model.Type;
+import compiler.analysis.model.Console;
 
 parser code {:
-
+  
+  public static SemanticAnalyser sAnalyser = new SemanticAnalyser();
   
   public void report_error(String message, Object info) {
    
-        StringBuffer m = new StringBuffer("Erro");
+    StringBuffer m = new StringBuffer("Erro");
    
-        if (info instanceof java_cup.runtime.Symbol) {
-            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-            m.append(" na linha " + (s.left));
-            m.append(", coluna " + (s.right));
-        }
-        m.append(" : " + message);
-        System.err.println(m);
+    if (info instanceof java_cup.runtime.Symbol) {
+  	  java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+      m.append(" na linha " + (s.left));
+      m.append(", coluna " + (s.right));
     }
+    m.append(" : " + message);
+    System.err.println(m);
+  }
 
-    public void report_fatal_error(String message, Object info) {
-        report_error(message, info);
-        System.exit(1);
-    }
+  public void report_fatal_error(String message, Object info) {
+    report_error(message, info);
+    System.exit(-1);
+  }
     
 :};
 
-terminal	IDENTIFIER, I_CONSTANT, F_CONSTANT, STRING_LITERAL, FUNC_NAME, SIZEOF;
+terminal	IDENTIFIER, I_CONSTANT, F_CONSTANT, C_CONSTANT, STRING_LITERAL, FUNC_NAME, SIZEOF;
 terminal	PTR_OP, INC_OP, DEC_OP, LEFT_OP, RIGHT_OP, LE_OP, GE_OP, EQ_OP, NE_OP;
 terminal	AND_OP, OR_OP, MUL_ASSIGN, DIV_ASSIGN, MOD_ASSIGN, ADD_ASSIGN;
 terminal	SUB_ASSIGN, LEFT_ASSIGN, RIGHT_ASSIGN, AND_ASSIGN;
@@ -80,20 +84,22 @@ includes
 	;
 
 include
-	::= POUND INCLUDE LESS_THAN IDENTIFIER GREATER_THAN /* regra para o include */
+	::= POUND INCLUDE LESS_THAN IDENTIFIER GREATER_THAN
+	| POUND INCLUDE LESS_THAN IDENTIFIER DOT IDENTIFIER GREATER_THAN
 	;
 
 primary_expression
-	::= IDENTIFIER
-	| constant
-	| string
+	::= IDENTIFIER:id {: RESULT = parser.sAnalyser.getTypeIfExists((String)id); if(RESULT == null) RESULT = id; Console.log("<IDENTIFIER:id> " + id); :}
+	| constant:ct {: RESULT = ct; Console.logNT("<constant:ct> " + ct); :}
+	| string:str {: RESULT = str; Console.logNT("<string:str> " + str); :}
 	| LEFT_PARENTESIS expression RIGHT_PARENTESIS
 	| generic_selection
 	;
 
 constant
-	::= I_CONSTANT		/* includes character_constant */
-	| F_CONSTANT
+	::= I_CONSTANT:ict {: RESULT = new Type("int"); Console.log("<I_CONSTANT:ict> " + ict); :}		/* includes character_constant */
+	| F_CONSTANT:fct {: RESULT = new Type("float"); Console.log("<F_CONSTANT:fct> " + fct); :}
+	| C_CONSTANT:cct {: RESULT = new Type("char"); Console.log("<C_CONSTANT:cct> " + cct); :}
 	| ENUMERATION_CONSTANT	/* after it has been defined as such */
 	;
 
@@ -102,8 +108,8 @@ enumeration_constant		/* before it has been defined as such */
 	;
 
 string
-	::= STRING_LITERAL
-	| FUNC_NAME
+	::= STRING_LITERAL:sl {: RESULT = sl; Console.log("<STRING_LITERAL:sl> " + sl); :}
+	| FUNC_NAME:fc {: RESULT = fc; Console.log("<FUNC_NAME:fc> " + fc); :}
 	;
 
 generic_selection
@@ -121,7 +127,7 @@ generic_association
 	;
 
 postfix_expression
-	::= primary_expression
+	::= primary_expression:pe {: RESULT = pe; Console.logNT("<primary_expression:pe> " + pe); :}
 	| postfix_expression LEFT_SQ_BRACK expression RIGHT_SQ_BRACK
 	| postfix_expression LEFT_PARENTESIS RIGHT_PARENTESIS
 	| postfix_expression LEFT_PARENTESIS argument_expression_list RIGHT_PARENTESIS
@@ -139,7 +145,7 @@ argument_expression_list
 	;
 
 unary_expression
-	::= postfix_expression
+	::= postfix_expression:pe {: RESULT = pe; Console.logNT("<postfix_expression:pe> " + pe); :}
 	| INC_OP unary_expression
 	| DEC_OP unary_expression
 	| unary_operator cast_expression
@@ -158,80 +164,80 @@ unary_operator
 	;
 
 cast_expression
-	::= unary_expression
+	::= unary_expression:ue {: RESULT = ue; Console.logNT("<unary_expression:ue> " + ue); :}
 	| LEFT_PARENTESIS type_name RIGHT_PARENTESIS cast_expression
 	;
 
 multiplicative_expression
-	::= cast_expression
+	::= cast_expression:ce {: RESULT = ce; Console.logNT("<cast_expression:ce> " + ce); :}
 	| multiplicative_expression TIMES cast_expression
 	| multiplicative_expression DIV cast_expression
 	| multiplicative_expression MOD cast_expression
 	;
 
 additive_expression
-	::= multiplicative_expression
+	::= multiplicative_expression:me {: RESULT = me; Console.logNT("<multiplicative_expression:me> " + me); :}
 	| additive_expression PLUS multiplicative_expression
 	| additive_expression MINUS multiplicative_expression
 	;
 
 shift_expression
-	::= additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
+	::= additive_expression:ae {: RESULT = ae; Console.logNT("<additive_expression:ae> " + ae); :}
+	| shift_expression LEFT_OP additive_expression {: Console.logNT("shift_expression LEFT_OP additive_expression: "); :}
+	| shift_expression RIGHT_OP additive_expression {: Console.logNT("shift_expression LEFT_OP additive_expression: "); :}
 	;
 
-relational_expression
-	::= shift_expression
-	| relational_expression LESS_THAN shift_expression
-	| relational_expression GREATER_THAN shift_expression
-	| relational_expression LE_OP shift_expression
-	| relational_expression GE_OP shift_expression
+relational_expression 
+	::= shift_expression:se {: RESULT = se; Console.logNT("<shift_expression:se> " + se); :}
+	| relational_expression:re LESS_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re GREATER_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re LE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LE_OP shift_expression>"); :}
+	| relational_expression:re GE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression GE_OP shift_expression>"); :}
 	;
 
 equality_expression
-	::= relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NE_OP relational_expression
+	::= relational_expression:re {: RESULT = re; Console.logNT("<relational_expression:re> " + re); :}
+	| equality_expression:ee EQ_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("<equality_expression EQ_OP relational_expression>"); :}
+	| equality_expression:ee NE_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("<equality_expression NE_OP relational_expression>"); :}
 	;
 
 and_expression
-	::= equality_expression
+	::= equality_expression:ee {: RESULT = ee; Console.logNT("<equality_expression:ee> " + ee); :}
 	| and_expression AND_BINARY equality_expression
 	;
 
 exclusive_or_expression
-	::= and_expression
+	::= and_expression:ae {: RESULT = ae; Console.logNT("<and_expression:ae> " + ae); :}
 	| exclusive_or_expression XOR_BINARY and_expression
 	;
 
 inclusive_or_expression
-	::= exclusive_or_expression
+	::= exclusive_or_expression:ee {: RESULT = ee; Console.logNT("<exclusive_or_expression:ee> " + ee); :}
 	| inclusive_or_expression OR_BINARY exclusive_or_expression
 	;
 
 logical_and_expression
-	::= inclusive_or_expression
+	::= inclusive_or_expression:ie {: RESULT = ie; Console.logNT("<inclusive_or_expression:ie> " + ie); :}
 	| logical_and_expression AND_OP inclusive_or_expression
 	;
 
 logical_or_expression
-	::= logical_and_expression
+	::= logical_and_expression:le {: RESULT = le; Console.logNT("<logical_and_expression:le> " + le); :}
 	| logical_or_expression OR_OP logical_and_expression
 	;
 
 conditional_expression
-	::= logical_or_expression
+	::= logical_or_expression:le {: RESULT = le; Console.logNT("<logical_or_expression:le> " + le); :}
 	| logical_or_expression QUESTION expression COLON conditional_expression
 	;
 
 assignment_expression
-	::= conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	::= conditional_expression:ce {: RESULT = ce; Console.logNT("<conditional_expression:ce> " + ce); :}
+	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: System.out.println(">>>>assignment? " + ue + " - " + ao + " - " + ae); :}
 	;
 
 assignment_operator
-	::= ASSIGNMENT
+	::= ASSIGNMENT:a {: RESULT = a; Console.log("<ASSIGNMENT:a> " + a); :}
 	| MUL_ASSIGN
 	| DIV_ASSIGN
 	| MOD_ASSIGN
@@ -245,8 +251,8 @@ assignment_operator
 	;
 
 expression
-	::= assignment_expression
-	| expression COMMA assignment_expression
+	::= assignment_expression:ae {: RESULT = ae; Console.logNT("<assignment_expression:ae> " + ae); :}
+	| expression COMMA assignment_expression {: System.out.println("oi"); :}
 	;
 
 constant_expression
@@ -254,16 +260,16 @@ constant_expression
 	;
 
 declaration
-	::= declaration_specifiers SEMICOLON
-	| declaration_specifiers init_declarator_list SEMICOLON
+	::= declaration_specifiers:de SEMICOLON
+	| declaration_specifiers:de init_declarator_list:idl SEMICOLON {: RESULT = de; Console.logNT("<declaration_specifiers:de> " + de + " <init_declarator_list:idl> " + idl); parser.sAnalyser.checkTypesDeclaration(de, idl); parser.sAnalyser.setNextVariableType((Type)de); :}
 	| static_assert_declaration
 	;
 
 declaration_specifiers
 	::= storage_class_specifier declaration_specifiers
 	| storage_class_specifier
-	| type_specifier declaration_specifiers
-	| type_specifier
+	| type_specifier:ts declaration_specifiers:ds {: RESULT = ts; Console.logNT("<type_specifier:ts> " + ts + " <declaration_specifiers:ds> " + ds); :}
+	| type_specifier:ts {: RESULT = ts; Console.logNT("<type_specifier:ts> " + ts); parser.sAnalyser.setNextVariableType((Type)ts); :}
 	| type_qualifier declaration_specifiers
 	| type_qualifier
 	| function_specifier declaration_specifiers
@@ -273,13 +279,13 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	::= init_declarator
+	::= init_declarator:id {: RESULT = id; Console.logNT("<init_declarator:id> " + id); :}
 	| init_declarator_list COMMA init_declarator
 	;
 
 init_declarator
-	::= declarator ASSIGNMENT initializer
-	| declarator
+	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("<declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; :}
+	| declarator:d {: RESULT = d; Console.logNT("<declarator:d> " + d); parser.sAnalyser.nextVariable = (String)d; :}
 	;
 
 storage_class_specifier
@@ -292,18 +298,18 @@ storage_class_specifier
 	;
 
 type_specifier
-	::= VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| BOOL
-	| COMPLEX
-	| IMAGINARY	  	/* non-mandated extension */
+	::= VOID:v 		{: RESULT = new Type("void"); Console.log("<VOID:v> " + v); :}
+	| CHAR:c 		{: RESULT = new Type("char"); Console.log("<CHAR:c> " + c); :}
+	| SHORT:s 		{: RESULT = new Type("short"); Console.log("<SHORT:s> " + s); :}
+	| INT:i 		{: RESULT = new Type("int"); Console.log("<INT:i> " + i); :}
+	| LONG:l 		{: RESULT = new Type("long"); Console.log("<LONG:l> " + l); :}
+	| FLOAT:f 		{: RESULT = new Type("float"); Console.log("<FLOAT:f> " + f); :}
+	| DOUBLE:d 		{: RESULT = new Type("double"); Console.log("<DOUBLE:d> " + d); :}
+	| SIGNED:s 		{: RESULT = new Type("signed"); Console.log("<SIGNED:s> " + s); :}
+	| UNSIGNED:u 	{: RESULT = new Type("unsigned"); Console.log("<UNSIGNED:u> " + u); :}
+	| BOOL:b 		{: RESULT = new Type("bool"); Console.log("<BOOL:b> " + b); :}
+	| COMPLEX:c 	{: RESULT = new Type("complex"); Console.log("<COMPLEX:c> " + c); :}
+	| IMAGINARY:i 	{: RESULT = new Type("imaginary"); Console.log("<IMAGINARY:i> " + i); :}	  	/* non-mandated extension */
 	| atomic_type_specifier
 	| struct_or_union_specifier
 	| enum_specifier
@@ -391,11 +397,11 @@ alignment_specifier
 
 declarator
 	::= pointer direct_declarator
-	| direct_declarator
+	| direct_declarator:dd {: RESULT = dd; Console.logNT("<direct_declarator:dd> " + dd); :}
 	;
 
 direct_declarator
-	::= IDENTIFIER
+	::= IDENTIFIER:i {: RESULT = i; Console.log("<IDENTIFIER:i> " + i); :}
 	| LEFT_PARENTESIS declarator RIGHT_PARENTESIS
 	| direct_declarator LEFT_SQ_BRACK RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK TIMES RIGHT_SQ_BRACK
@@ -407,7 +413,7 @@ direct_declarator
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS
-	| direct_declarator LEFT_PARENTESIS RIGHT_PARENTESIS
+	| direct_declarator:dd LEFT_PARENTESIS RIGHT_PARENTESIS {: RESULT = dd; Console.log("<direct_declarator:dd> " + dd); :}
 	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS
 	;
 
@@ -483,7 +489,7 @@ direct_abstract_declarator
 initializer
 	::= LEFT_BRACKET initializer_list RIGHT_BRACKET
 	| LEFT_BRACKET initializer_list COMMA RIGHT_BRACKET
-	| assignment_expression
+	| assignment_expression:ae {: RESULT = ae; Console.logNT("<assignment_expression:ae> " + ae); :}
 	;
 
 initializer_list
@@ -527,18 +533,18 @@ labeled_statement
 	;
 
 compound_statement
-	::= LEFT_BRACKET RIGHT_BRACKET
-	| LEFT_BRACKET  block_item_list RIGHT_BRACKET
+	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = "vazio"; Console.log("<LEFT_BRACKET RIGHT_BRACKET>"); :}
+	| LEFT_BRACKET  block_item_list:bil RIGHT_BRACKET {: Console.log("<block_item_list:bil> " + bil); :}
 	;
 
 block_item_list
-	::= block_item
+	::= block_item:bi {: Console.log("<block_item:bi> " + bi); :}
 	| block_item_list block_item
 	;
 
 block_item
-	::= declaration
-	| statement
+	::= declaration:d {: Console.log("<declaration:d> " + d); :}
+	| statement:s {: Console.log("<statement:s> " + s); :}
 	;
 
 expression_statement
@@ -547,9 +553,9 @@ expression_statement
 	;
 
 selection_statement
-	::= IF LEFT_PARENTESIS expression RIGHT_PARENTESIS statement ELSE statement
-	| IF LEFT_PARENTESIS expression RIGHT_PARENTESIS statement
-	| SWITCH LEFT_PARENTESIS expression RIGHT_PARENTESIS statement
+	::= IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement ELSE statement	{: parser.sAnalyser.isSelectionStatementOK((Type) e); :}
+	| IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement					{: parser.sAnalyser.isSelectionStatementOK((Type) e); :}
+	| SWITCH LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement
 	;
 
 iteration_statement
@@ -571,18 +577,18 @@ jump_statement
 
 translation_unit
 	::= includes
-	| external_declaration
-	| translation_unit external_declaration
+	| external_declaration:ed {: RESULT = ed; Console.logNT("<external_declaration:ed> " + ed); :}
+	| translation_unit:tu external_declaration:ed {: Console.logNT("<translation_unit:tu external_declaration:ed> " + tu + ed); :}
 	;
 
 external_declaration
-	::= function_definition
-	| declaration
+	::= declaration:d {: RESULT = d; Console.logNT("<declaration:d> " + d); :}
+	| function_definition:fd {: RESULT = fd; Console.logNT("<function_definition:fd> " + fd); :}
 	;
 
 function_definition
-	::= declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
+	::= declaration_specifiers:ds declarator:d declaration_list:dl compound_statement:cs
+	| declaration_specifiers:ds declarator:d compound_statement:cs {: RESULT = d; Console.log("<declaration_specifiers:ds> " + ds + " <declarator:d> " + d + " <compound_statement:cs> " + cs); :}
 	;
 
 declaration_list

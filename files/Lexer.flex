@@ -16,12 +16,23 @@ import java_cup.runtime.*;
 %column
 
 %{
+  public static int yyPreviousPublicLine;
+  public static int yyPublicLine;
   StringBuffer string = new StringBuffer();
+  
+  public static int getCurrentLine(){
+	if(Lexer.yyPreviousPublicLine != Lexer.yyPublicLine) return Lexer.yyPreviousPublicLine;
+	return Lexer.yyPublicLine;
+  }
 
   private Symbol symbol(int type) {
+    yyPreviousPublicLine = yyPublicLine;
+  	yyPublicLine = yyline+1;
     return new Symbol(type, yyline+1, yycolumn+1);
   }
   private Symbol symbol(int type, Object value) {
+  	yyPreviousPublicLine = yyPublicLine;
+  	yyPublicLine = yyline+1;
     return new Symbol(type, yyline+1, yycolumn+1, value);
   }
   private void reportError(int line, String message) {
@@ -30,17 +41,12 @@ import java_cup.runtime.*;
   private int yywrap(){
     return 1;
   }
+  private Symbol addIdentifierType(String identifier){
+    if(identifier.contains("\'")) return new Symbol(sym.IDENTIFIER, sym.CHAR);
+    return new Symbol(sym.IDENTIFIER, identifier); 
+  }
 %}
 
-
-/* will never be used
-%e  1019
-%p  2807
-%n  371
-%k  284
-%a  1213
-%o  1117
-*/
 
 O	=   [0-7]
 D	=   [0-9]
@@ -54,15 +60,10 @@ P	=	([Pp][+-]?{D}+)
 FS	=	(f|F|l|L)
 IS	=	(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))
 WS	=	[ \t\n\f\r]
-CM	=	"/*" [^*] ~"*/" | "/*" "*"+ "/"
+CM	=	"/*" [^*] ~"*/" | "/*" "*"+ "/" | "//".*
 
 IDE	=	{L}{A}*
 
-/* will never be used
-CP	=	(u|U|L)
-SP	=	(u8|u|U|L)
-ES	=	(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))
-*/
 CP	=	(u|U|L)
 SP	=	(u8|u|U|L)
 ES	=	(\\([\'\"\?\\nrtfabv]|{O}{1,3}|x{H}+))
@@ -70,74 +71,74 @@ ES	=	(\\([\'\"\?\\nrtfabv]|{O}{1,3}|x{H}+))
 %%
 
 <YYINITIAL> {
-
-	"//".*                  { /* consume //-comment */ }
 	
-	"include"				{ return symbol(sym.INCLUDE); }
-	"auto"					{ return symbol(sym.AUTO); }
-	"break"					{ return symbol(sym.BREAK); }
-	"case"					{ return symbol(sym.CASE); }
-	"char"					{ return symbol(sym.CHAR); }
-	"const"					{ return symbol(sym.CONST); }
-	"continue"				{ return symbol(sym.CONTINUE); }
-	"default"				{ return symbol(sym.DEFAULT); }
-	"do"					{ return symbol(sym.DO); }
-	"double"				{ return symbol(sym.DOUBLE); }
-	"else"					{ return symbol(sym.ELSE); }
-	"enum"					{ return symbol(sym.ENUM); }
-	"extern"				{ return symbol(sym.EXTERN); }
-	"float"					{ return symbol(sym.FLOAT); }
-	"for"					{ return symbol(sym.FOR); }
-	"goto"					{ return symbol(sym.GOTO); }
-	"if"					{ return symbol(sym.IF); }
-	"inline"				{ return symbol(sym.INLINE); }
-	"int"					{ return symbol(sym.INT); }
-	"long"					{ return symbol(sym.LONG); }
-	"register"				{ return symbol(sym.REGISTER); }
-	"restrict"				{ return symbol(sym.RESTRICT); }
-	"return"				{ return symbol(sym.RETURN); }
-	"short"					{ return symbol(sym.SHORT); }
-	"signed"				{ return symbol(sym.SIGNED); }
-	"sizeof"				{ return symbol(sym.SIZEOF); }
-	"static"				{ return symbol(sym.STATIC); }
-	"struct"				{ return symbol(sym.STRUCT); }
-	"switch"				{ return symbol(sym.SWITCH); }
-	"typedef"				{ return symbol(sym.TYPEDEF); }
-	"union"					{ return symbol(sym.UNION); }
-	"unsigned"				{ return symbol(sym.UNSIGNED); }
-	"void"					{ return symbol(sym.VOID); }
-	"volatile"				{ return symbol(sym.VOLATILE); }
-	"while"					{ return symbol(sym.WHILE); }
-	"_Alignas"              { return symbol(sym.ALIGNAS); }
-	"_Alignof"              { return symbol(sym.ALIGNOF); }
-	"_Atomic"               { return symbol(sym.ATOMIC); }
-	"_Bool"                 { return symbol(sym.BOOL); }
-	"_Complex"              { return symbol(sym.COMPLEX); }
-	"_Generic"              { return symbol(sym.GENERIC); }
-	"_Imaginary"            { return symbol(sym.IMAGINARY); }
-	"_Noreturn"             { return symbol(sym.NORETURN); }
-	"_Static_assert"        { return symbol(sym.STATIC_ASSERT); }
-	"_Thread_local"         { return symbol(sym.THREAD_LOCAL); }
-	"__func__"              { return symbol(sym.FUNC_NAME); }
+	"include"				{ return symbol(sym.INCLUDE, yytext()); }
+	"auto"					{ return symbol(sym.AUTO, yytext()); }
+	"break"					{ return symbol(sym.BREAK, yytext()); }
+	"case"					{ return symbol(sym.CASE, yytext()); }
+	"char"					{ return symbol(sym.CHAR, yytext()); }
+	"const"					{ return symbol(sym.CONST, yytext()); }
+	"continue"				{ return symbol(sym.CONTINUE, yytext()); }
+	"default"				{ return symbol(sym.DEFAULT, yytext()); }
+	"do"					{ return symbol(sym.DO, yytext()); }
+	"double"				{ return symbol(sym.DOUBLE, yytext()); }
+	"else"					{ return symbol(sym.ELSE, yytext()); }
+	"enum"					{ return symbol(sym.ENUM, yytext()); }
+	"extern"				{ return symbol(sym.EXTERN, yytext()); }
+	"float"					{ return symbol(sym.FLOAT, yytext()); }
+	"for"					{ return symbol(sym.FOR, yytext()); }
+	"goto"					{ return symbol(sym.GOTO, yytext()); }
+	"if"					{ return symbol(sym.IF, yytext()); }
+	"inline"				{ return symbol(sym.INLINE, yytext()); }
+	"int"					{ return symbol(sym.INT, yytext()); }
+	"long"					{ return symbol(sym.LONG, yytext()); }
+	"register"				{ return symbol(sym.REGISTER, yytext()); }
+	"restrict"				{ return symbol(sym.RESTRICT, yytext()); }
+	"return"				{ return symbol(sym.RETURN, yytext()); }
+	"short"					{ return symbol(sym.SHORT, yytext()); }
+	"signed"				{ return symbol(sym.SIGNED, yytext()); }
+	"sizeof"				{ return symbol(sym.SIZEOF, yytext()); }
+	"static"				{ return symbol(sym.STATIC, yytext()); }
+	"struct"				{ return symbol(sym.STRUCT, yytext()); }
+	"switch"				{ return symbol(sym.SWITCH, yytext()); }
+	"typedef"				{ return symbol(sym.TYPEDEF, yytext()); }
+	"union"					{ return symbol(sym.UNION, yytext()); }
+	"unsigned"				{ return symbol(sym.UNSIGNED, yytext()); }
+	"void"					{ return symbol(sym.VOID, yytext()); }
+	"volatile"				{ return symbol(sym.VOLATILE, yytext()); }
+	"while"					{ return symbol(sym.WHILE, yytext()); }
+	"_Alignas"              { return symbol(sym.ALIGNAS, yytext()); }
+	"_Alignof"              { return symbol(sym.ALIGNOF, yytext()); }
+	"_Atomic"               { return symbol(sym.ATOMIC, yytext()); }
+	"_Bool"                 { return symbol(sym.BOOL, "bool"); }
+	"_Complex"              { return symbol(sym.COMPLEX, yytext()); }
+	"_Generic"              { return symbol(sym.GENERIC, yytext()); }
+	"_Imaginary"            { return symbol(sym.IMAGINARY, yytext()); }
+	"_Noreturn"             { return symbol(sym.NORETURN, yytext()); }
+	"_Static_assert"        { return symbol(sym.STATIC_ASSERT, yytext()); }
+	"_Thread_local"         { return symbol(sym.THREAD_LOCAL, yytext()); }
+	"__func__"              { return symbol(sym.FUNC_NAME, yytext()); }
 	
 	{CM}					{ /* comentarios */ }
 	
-	/*{L}{A}*								{ return check_type(); }*/
-	{IDE}								{ return symbol(sym.IDENTIFIER); }
 	
-	{HP}{H}+{IS}?						{ return symbol(sym.I_CONSTANT); }
-	{NZ}{D}*{IS}?						{ return symbol(sym.I_CONSTANT); }
-	"0"{O}*{IS}?						{ return symbol(sym.I_CONSTANT); }
-	{CP}?"'"([^'\\\n]|{ES})+"'"			{ return symbol(sym.I_CONSTANT); }
+	/*{IDE}								{ return addIdentifierType(yytext()); }*/
+	{IDE}								{ return symbol(sym.IDENTIFIER, yytext()); }
 	
-	{D}+{E}{FS}?						{ return symbol(sym.F_CONSTANT); }
-	{D}*"."{D}+{E}?{FS}?				{ return symbol(sym.F_CONSTANT); }
-	{D}+"."{E}?{FS}?					{ return symbol(sym.F_CONSTANT); }
-	{HP}{H}+{P}{FS}?					{ return symbol(sym.F_CONSTANT); }
-	{HP}{H}*"."{H}+{P}{FS}?				{ return symbol(sym.F_CONSTANT); }
-	{HP}{H}+"."{P}{FS}?					{ return symbol(sym.F_CONSTANT); }
+	{HP}{H}+{IS}?						{ return symbol(sym.I_CONSTANT, yytext()); }
+	{NZ}{D}*{IS}?						{ return symbol(sym.I_CONSTANT, yytext()); }
+	"0"{O}*{IS}?						{ return symbol(sym.I_CONSTANT, yytext()); }
 	
-	({SP}?\"([^\"\\\n]|{ES})*\"{WS}*)+	{ return symbol(sym.STRING_LITERAL); }
+	{CP}?"'"([^'\\\n]|{ES})+"'"			{ return symbol(sym.C_CONSTANT, yytext()); }
+	
+	{D}+{E}{FS}?						{ return symbol(sym.F_CONSTANT, yytext()); }
+	{D}*"."{D}+{E}?{FS}?				{ return symbol(sym.F_CONSTANT, yytext()); }
+	{D}+"."{E}?{FS}?					{ return symbol(sym.F_CONSTANT, yytext()); }
+	{HP}{H}+{P}{FS}?					{ return symbol(sym.F_CONSTANT, yytext()); }
+	{HP}{H}*"."{H}+{P}{FS}?				{ return symbol(sym.F_CONSTANT, yytext()); }
+	{HP}{H}+"."{P}{FS}?					{ return symbol(sym.F_CONSTANT, yytext()); }
+	
+	({SP}?\"([^\"\\\n]|{ES})*\"{WS}*)+	{ return symbol(sym.STRING_LITERAL, yytext()); }
 	
 	"..."				{ return symbol(sym.ELLIPSIS); }
 	">>="				{ return symbol(sym.RIGHT_ASSIGN); }
@@ -169,7 +170,7 @@ ES	=	(\\([\'\"\?\\nrtfabv]|{O}{1,3}|x{H}+))
 	("}"|"%>")			{ return symbol(sym.RIGHT_BRACKET); }
 	","					{ return symbol(sym.COMMA); }
 	":"					{ return symbol(sym.COLON); }
-	"="					{ return symbol(sym.ASSIGNMENT); }
+	"="					{ return symbol(sym.ASSIGNMENT, yytext()); }
 	"("					{ return symbol(sym.LEFT_PARENTESIS); }
 	")"					{ return symbol(sym.RIGHT_PARENTESIS); }
 	("["|"<:")			{ return symbol(sym.LEFT_SQ_BRACK); }

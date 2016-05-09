@@ -9,13 +9,16 @@ import java_cup.runtime.Symbol;
 public class Main {
 
 	public static void main(String[] args) {
-		String prog = "files/prog.c";
+		String prog = "files/prog0.c";
 		
 		try{
-
-			Parser p = new Parser(new Lexer(new FileReader(prog)));
+			Lexer lexer = new Lexer(new FileReader(prog));
+			System.out.println(">> Successfull Lexical Analysis");
+			Parser p = new Parser(lexer);
 			// Object result = p.parse().value;
 			Symbol s = p.parse();
+			System.out.println(">> Successfull Sintatic Analysis");
+			
 			if(s.toString().equals("#0")){
 				System.out.println("> Successfull Compilation: " + prog);
 			}else{
