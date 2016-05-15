@@ -1,5 +1,5 @@
 //variaveis globais
-
+/*
 int x = 1;
 _Bool be = 1;
 float fe = 2;
@@ -85,8 +85,12 @@ int main(){
 }
 
 
-
-
+void main2(){
+	int array[5] = {0,1,2,3,4};
+	char nome[10] = {'j','o','s','e','\0'};
+	char c = array[0] + nome[1];
+}
+*/
 
 
 

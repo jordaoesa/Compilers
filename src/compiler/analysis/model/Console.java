@@ -2,8 +2,8 @@ package compiler.analysis.model;
 
 public class Console {
 
-	private static boolean ativo = false;
-	private static boolean ativoNT = false;
+	private static boolean ativo = true;
+	private static boolean ativoNT = true;
 	private final static String DEBUG_TAG = "log$ ";
 
 	public static void log(String message) {

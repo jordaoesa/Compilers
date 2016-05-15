@@ -128,7 +128,7 @@ generic_association
 
 postfix_expression
 	::= primary_expression:pe {: RESULT = pe; Console.logNT("130 <primary_expression:pe> " + pe); :}
-	| postfix_expression LEFT_SQ_BRACK expression RIGHT_SQ_BRACK
+	| postfix_expression:pe LEFT_SQ_BRACK expression:e RIGHT_SQ_BRACK {: RESULT = pe; Console.logNT("131 <postfix_expression:pe LEFT_SQ_BRACK expression:e RIGHT_SQ_BRACK> " + pe + " " + e); :}
 	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("132 <postfix_expression:pe LEFT_PARENTESIS RIGHT_PARENTESIS> " + pe + "()"); :}
 	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} argument_expression_list:ael RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("133 <postfix_expression:pe LEFT_PARENTESIS argument_expression_list:ael RIGHT_PARENTESIS> " + pe + "("+ael+")"); :}
 	| postfix_expression DOT IDENTIFIER
