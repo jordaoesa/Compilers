@@ -14,7 +14,7 @@ public class Console {
 	
 	public static void logNT(String message){
 		if (ativoNT) {
-			System.out.println(DEBUG_TAG + "-NT$" + message);
+			System.out.println(DEBUG_TAG + "- NT$ " + message);
 		}
 	}
 

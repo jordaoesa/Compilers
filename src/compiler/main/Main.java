@@ -17,7 +17,7 @@ public class Main {
 			Parser p = new Parser(lexer);
 			// Object result = p.parse().value;
 			Symbol s = p.parse();
-			System.out.println(">> Successfull Sintatic Analysis");
+			System.out.println(">> Successfull Sintatic and Semantic Analysis");
 			
 			if(s.toString().equals("#0")){
 				System.out.println("> Successfull Compilation: " + prog);

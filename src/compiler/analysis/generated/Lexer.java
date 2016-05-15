@@ -1032,7 +1032,7 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 104: break;
           case 4: 
-            { return symbol(sym.MINUS);
+            { return symbol(sym.MINUS, yytext());
             }
           case 105: break;
           case 5: 
@@ -1040,23 +1040,23 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 106: break;
           case 6: 
-            { return symbol(sym.DIV);
+            { return symbol(sym.DIV, yytext());
             }
           case 107: break;
           case 7: 
-            { return symbol(sym.TIMES);
+            { return symbol(sym.TIMES, yytext());
             }
           case 108: break;
           case 8: 
-            { return symbol(sym.QUESTION);
+            { return symbol(sym.QUESTION, yytext());
             }
           case 109: break;
           case 9: 
-            { return symbol(sym.DOT);
+            { return symbol(sym.DOT, yytext());
             }
           case 110: break;
           case 10: 
-            { return symbol(sym.GREATER_THAN);
+            { return symbol(sym.GREATER_THAN, yytext());
             }
           case 111: break;
           case 11: 
@@ -1064,75 +1064,75 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 112: break;
           case 12: 
-            { return symbol(sym.LESS_THAN);
+            { return symbol(sym.LESS_THAN, yytext());
             }
           case 113: break;
           case 13: 
-            { return symbol(sym.PLUS);
+            { return symbol(sym.PLUS, yytext());
             }
           case 114: break;
           case 14: 
-            { return symbol(sym.MOD);
+            { return symbol(sym.MOD, yytext());
             }
           case 115: break;
           case 15: 
-            { return symbol(sym.AND_BINARY);
+            { return symbol(sym.AND_BINARY, yytext());
             }
           case 116: break;
           case 16: 
-            { return symbol(sym.XOR_BINARY);
+            { return symbol(sym.XOR_BINARY, yytext());
             }
           case 117: break;
           case 17: 
-            { return symbol(sym.OR_BINARY);
+            { return symbol(sym.OR_BINARY, yytext());
             }
           case 118: break;
           case 18: 
-            { return symbol(sym.NEG);
+            { return symbol(sym.NEG, yytext());
             }
           case 119: break;
           case 19: 
-            { return symbol(sym.SEMICOLON);
+            { return symbol(sym.SEMICOLON, yytext());
             }
           case 120: break;
           case 20: 
-            { return symbol(sym.LEFT_BRACKET);
+            { return symbol(sym.LEFT_BRACKET, yytext());
             }
           case 121: break;
           case 21: 
-            { return symbol(sym.RIGHT_BRACKET);
+            { return symbol(sym.RIGHT_BRACKET, yytext());
             }
           case 122: break;
           case 22: 
-            { return symbol(sym.COMMA);
+            { return symbol(sym.COMMA, yytext());
             }
           case 123: break;
           case 23: 
-            { return symbol(sym.COLON);
+            { return symbol(sym.COLON, yytext());
             }
           case 124: break;
           case 24: 
-            { return symbol(sym.LEFT_PARENTESIS);
+            { return symbol(sym.LEFT_PARENTESIS, yytext());
             }
           case 125: break;
           case 25: 
-            { return symbol(sym.RIGHT_PARENTESIS);
+            { return symbol(sym.RIGHT_PARENTESIS, yytext());
             }
           case 126: break;
           case 26: 
-            { return symbol(sym.LEFT_SQ_BRACK);
+            { return symbol(sym.LEFT_SQ_BRACK, yytext());
             }
           case 127: break;
           case 27: 
-            { return symbol(sym.RIGHT_SQ_BRACK);
+            { return symbol(sym.RIGHT_SQ_BRACK, yytext());
             }
           case 128: break;
           case 28: 
-            { return symbol(sym.NEG_BINARY);
+            { return symbol(sym.NEG_BINARY, yytext());
             }
           case 129: break;
           case 29: 
-            { return symbol(sym.POUND);
+            { return symbol(sym.POUND, yytext());
             }
           case 130: break;
           case 30: 
@@ -1140,15 +1140,15 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 131: break;
           case 31: 
-            { return symbol(sym.DEC_OP);
+            { return symbol(sym.DEC_OP, yytext());
             }
           case 132: break;
           case 32: 
-            { return symbol(sym.PTR_OP);
+            { return symbol(sym.PTR_OP, yytext());
             }
           case 133: break;
           case 33: 
-            { return symbol(sym.SUB_ASSIGN);
+            { return symbol(sym.SUB_ASSIGN, yytext());
             }
           case 134: break;
           case 34: 
@@ -1156,11 +1156,11 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 135: break;
           case 35: 
-            { return symbol(sym.DIV_ASSIGN);
+            { return symbol(sym.DIV_ASSIGN, yytext());
             }
           case 136: break;
           case 36: 
-            { return symbol(sym.MUL_ASSIGN);
+            { return symbol(sym.MUL_ASSIGN, yytext());
             }
           case 137: break;
           case 37: 
@@ -1176,59 +1176,59 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 140: break;
           case 40: 
-            { return symbol(sym.RIGHT_OP);
+            { return symbol(sym.RIGHT_OP, yytext());
             }
           case 141: break;
           case 41: 
-            { return symbol(sym.GE_OP);
+            { return symbol(sym.GE_OP, yytext());
             }
           case 142: break;
           case 42: 
-            { return symbol(sym.EQ_OP);
+            { return symbol(sym.EQ_OP, yytext());
             }
           case 143: break;
           case 43: 
-            { return symbol(sym.LE_OP);
+            { return symbol(sym.LE_OP, yytext());
             }
           case 144: break;
           case 44: 
-            { return symbol(sym.LEFT_OP);
+            { return symbol(sym.LEFT_OP, yytext());
             }
           case 145: break;
           case 45: 
-            { return symbol(sym.ADD_ASSIGN);
+            { return symbol(sym.ADD_ASSIGN, yytext());
             }
           case 146: break;
           case 46: 
-            { return symbol(sym.INC_OP);
+            { return symbol(sym.INC_OP, yytext());
             }
           case 147: break;
           case 47: 
-            { return symbol(sym.MOD_ASSIGN);
+            { return symbol(sym.MOD_ASSIGN, yytext());
             }
           case 148: break;
           case 48: 
-            { return symbol(sym.AND_ASSIGN);
+            { return symbol(sym.AND_ASSIGN, yytext());
             }
           case 149: break;
           case 49: 
-            { return symbol(sym.AND_OP);
+            { return symbol(sym.AND_OP, yytext());
             }
           case 150: break;
           case 50: 
-            { return symbol(sym.XOR_ASSIGN);
+            { return symbol(sym.XOR_ASSIGN, yytext());
             }
           case 151: break;
           case 51: 
-            { return symbol(sym.OR_ASSIGN);
+            { return symbol(sym.OR_ASSIGN, yytext());
             }
           case 152: break;
           case 52: 
-            { return symbol(sym.OR_OP);
+            { return symbol(sym.OR_OP, yytext());
             }
           case 153: break;
           case 53: 
-            { return symbol(sym.NE_OP);
+            { return symbol(sym.NE_OP, yytext());
             }
           case 154: break;
           case 54: 
@@ -1244,15 +1244,15 @@ public class Lexer implements java_cup.runtime.Scanner {
             }
           case 157: break;
           case 57: 
-            { return symbol(sym.ELLIPSIS);
+            { return symbol(sym.ELLIPSIS, yytext());
             }
           case 158: break;
           case 58: 
-            { return symbol(sym.RIGHT_ASSIGN);
+            { return symbol(sym.RIGHT_ASSIGN, yytext());
             }
           case 159: break;
           case 59: 
-            { return symbol(sym.LEFT_ASSIGN);
+            { return symbol(sym.LEFT_ASSIGN, yytext());
             }
           case 160: break;
           case 60: 

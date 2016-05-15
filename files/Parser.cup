@@ -4,10 +4,13 @@
  */
 package compiler.analysis.generated;
 
+import java.util.ArrayList;
+
 import java_cup.runtime.*;
 import compiler.analysis.SemanticAnalyser;
 import compiler.analysis.model.Type;
 import compiler.analysis.model.Console;
+
 
 parser code {:
   
@@ -233,7 +236,7 @@ conditional_expression
 
 assignment_expression
 	::= conditional_expression:ce {: RESULT = ce; Console.logNT("<conditional_expression:ce> " + ce); :}
-	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: System.out.println(">>>>assignment? " + ue + " - " + ao + " - " + ae); :}
+	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: RESULT = ao; parser.sAnalyser.checkTypesDeclaration(ue, ae); :}
 	;
 
 assignment_operator
@@ -252,7 +255,7 @@ assignment_operator
 
 expression
 	::= assignment_expression:ae {: RESULT = ae; Console.logNT("<assignment_expression:ae> " + ae); :}
-	| expression COMMA assignment_expression {: System.out.println("oi"); :}
+	| expression COMMA assignment_expression 
 	;
 
 constant_expression
@@ -284,8 +287,8 @@ init_declarator_list
 	;
 
 init_declarator
-	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("<declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; :}
-	| declarator:d {: RESULT = d; Console.logNT("<declarator:d> " + d); parser.sAnalyser.nextVariable = (String)d; :}
+	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("287 <declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; :}
+	| declarator:d {: RESULT = d; Console.logNT("288 <declarator:d> " + d); parser.sAnalyser.nextVariable = (String)d; :}
 	;
 
 storage_class_specifier
@@ -298,18 +301,18 @@ storage_class_specifier
 	;
 
 type_specifier
-	::= VOID:v 		{: RESULT = new Type("void"); Console.log("<VOID:v> " + v); :}
-	| CHAR:c 		{: RESULT = new Type("char"); Console.log("<CHAR:c> " + c); :}
-	| SHORT:s 		{: RESULT = new Type("short"); Console.log("<SHORT:s> " + s); :}
-	| INT:i 		{: RESULT = new Type("int"); Console.log("<INT:i> " + i); :}
-	| LONG:l 		{: RESULT = new Type("long"); Console.log("<LONG:l> " + l); :}
-	| FLOAT:f 		{: RESULT = new Type("float"); Console.log("<FLOAT:f> " + f); :}
-	| DOUBLE:d 		{: RESULT = new Type("double"); Console.log("<DOUBLE:d> " + d); :}
-	| SIGNED:s 		{: RESULT = new Type("signed"); Console.log("<SIGNED:s> " + s); :}
-	| UNSIGNED:u 	{: RESULT = new Type("unsigned"); Console.log("<UNSIGNED:u> " + u); :}
-	| BOOL:b 		{: RESULT = new Type("bool"); Console.log("<BOOL:b> " + b); :}
-	| COMPLEX:c 	{: RESULT = new Type("complex"); Console.log("<COMPLEX:c> " + c); :}
-	| IMAGINARY:i 	{: RESULT = new Type("imaginary"); Console.log("<IMAGINARY:i> " + i); :}	  	/* non-mandated extension */
+	::= VOID:v 		{: RESULT = new Type("void"); Console.log("301 <VOID:v> " + v); :}
+	| CHAR:c 		{: RESULT = new Type("char"); Console.log("302 <CHAR:c> " + c); :}
+	| SHORT:s 		{: RESULT = new Type("short"); Console.log("303 <SHORT:s> " + s); :}
+	| INT:i 		{: RESULT = new Type("int"); Console.log("304 <INT:i> " + i); :}
+	| LONG:l 		{: RESULT = new Type("long"); Console.log("305 <LONG:l> " + l); :}
+	| FLOAT:f 		{: RESULT = new Type("float"); Console.log("306 <FLOAT:f> " + f); :}
+	| DOUBLE:d 		{: RESULT = new Type("double"); Console.log("307 <DOUBLE:d> " + d); :}
+	| SIGNED:s 		{: RESULT = new Type("signed"); Console.log("308 <SIGNED:s> " + s); :}
+	| UNSIGNED:u 	{: RESULT = new Type("unsigned"); Console.log("309 <UNSIGNED:u> " + u); :}
+	| BOOL:b 		{: RESULT = new Type("bool"); Console.log("310 <BOOL:b> " + b); :}
+	| COMPLEX:c 	{: RESULT = new Type("complex"); Console.log("311 <COMPLEX:c> " + c); :}
+	| IMAGINARY:i 	{: RESULT = new Type("imaginary"); Console.log("312 <IMAGINARY:i> " + i); :}	  	/* non-mandated extension */
 	| atomic_type_specifier
 	| struct_or_union_specifier
 	| enum_specifier
@@ -396,13 +399,13 @@ alignment_specifier
 	;
 
 declarator
-	::= pointer direct_declarator
-	| direct_declarator:dd {: RESULT = dd; Console.logNT("<direct_declarator:dd> " + dd); :}
+	::= pointer direct_declarator 
+	| direct_declarator:dd {: RESULT = dd; Console.logNT("400 <direct_declarator:dd> " + dd); :}
 	;
 
 direct_declarator
-	::= IDENTIFIER:i {: RESULT = i; Console.log("<IDENTIFIER:i> " + i); :}
-	| LEFT_PARENTESIS declarator RIGHT_PARENTESIS
+	::= IDENTIFIER:i {: RESULT = i; Console.log("404 <IDENTIFIER:i> " + i); :}
+	| LEFT_PARENTESIS declarator RIGHT_PARENTESIS 
 	| direct_declarator LEFT_SQ_BRACK RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK TIMES RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK STATIC type_qualifier_list assignment_expression RIGHT_SQ_BRACK
@@ -411,10 +414,10 @@ direct_declarator
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list STATIC assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list RIGHT_SQ_BRACK
-	| direct_declarator LEFT_SQ_BRACK assignment_expression RIGHT_SQ_BRACK
-	| direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS
-	| direct_declarator:dd LEFT_PARENTESIS RIGHT_PARENTESIS {: RESULT = dd; Console.log("<direct_declarator:dd> " + dd); :}
-	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS
+	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); Console.logNT("414 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: System.err.println(parser.sAnalyser.localVariables); Console.logNT("415 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; Console.log("416 <direct_declarator:dd> " + dd); :}
+	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS 
 	;
 
 pointer
@@ -432,18 +435,18 @@ type_qualifier_list
 
 parameter_type_list
 	::= parameter_list COMMA ELLIPSIS
-	| parameter_list
+	| parameter_list {: Console.log("435"); :}
 	;
 
 parameter_list
-	::= parameter_declaration
-	| parameter_list COMMA parameter_declaration
+	::= parameter_declaration {: Console.log("439"); :}
+	| parameter_list COMMA parameter_declaration {: Console.log("440"); :}
 	;
 
 parameter_declaration
-	::= declaration_specifiers declarator
-	| declaration_specifiers abstract_declarator
-	| declaration_specifiers
+	::= declaration_specifiers:ds declarator:d {: parser.sAnalyser.addLocalvariable((String)d, (Type)ds); Console.log("444 <declaration_specifiers declarator> " + ds + " " + d); :}
+	| declaration_specifiers abstract_declarator 
+	| declaration_specifiers 
 	;
 
 identifier_list
@@ -487,16 +490,16 @@ direct_abstract_declarator
 	;
 
 initializer
-	::= LEFT_BRACKET initializer_list RIGHT_BRACKET
-	| LEFT_BRACKET initializer_list COMMA RIGHT_BRACKET
-	| assignment_expression:ae {: RESULT = ae; Console.logNT("<assignment_expression:ae> " + ae); :}
+	::= LEFT_BRACKET initializer_list:il RIGHT_BRACKET {: RESULT = il; Console.logNT("490 <LEFT_BRACKET initializer_list:il RIGHT_BRACKET> { " + il + " }"); :}
+	| LEFT_BRACKET initializer_list COMMA RIGHT_BRACKET 
+	| assignment_expression:ae {: RESULT = ae; Console.logNT("492 <assignment_expression:ae> " + ae); :}
 	;
 
 initializer_list
 	::= designation initializer
-	| initializer
-	| initializer_list COMMA designation initializer
-	| initializer_list COMMA initializer
+	| initializer:i {: RESULT = i; Console.logNT("497 <initializer:i> " + i); :}
+	| initializer_list COMMA designation initializer 
+	| initializer_list:il COMMA initializer:i {: RESULT = il; parser.sAnalyser.checkConsistencyInsideArray(il, i); Console.logNT("499 <initializer_list:il COMMA initializer:i> [ " + il + " , " + i + " ]" ); :}
 	;
 
 designation
@@ -518,12 +521,12 @@ static_assert_declaration
 	;
 
 statement
-	::= labeled_statement
-	| compound_statement
-	| expression_statement
-	| selection_statement
-	| iteration_statement
-	| jump_statement
+	::= labeled_statement 
+	| compound_statement:cs {: RESULT = cs; Console.logNT("522 <compound_statement:cs> " + cs); :}
+	| expression_statement 
+	| selection_statement:ss {: Console.logNT("524 <selection_statement:ss> " + ss); :}
+	| iteration_statement 
+	| jump_statement 
 	;
 
 labeled_statement
@@ -533,23 +536,23 @@ labeled_statement
 	;
 
 compound_statement
-	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = "vazio"; Console.log("<LEFT_BRACKET RIGHT_BRACKET>"); :}
-	| LEFT_BRACKET  block_item_list:bil RIGHT_BRACKET {: Console.log("<block_item_list:bil> " + bil); :}
+	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = "vazio"; Console.log("536 <LEFT_BRACKET RIGHT_BRACKET>"); :}
+	| LEFT_BRACKET  block_item_list:bil RIGHT_BRACKET {: RESULT = bil; Console.log("537 <block_item_list:bil> [ " + bil + " ]"); :}
 	;
 
 block_item_list
-	::= block_item:bi {: Console.log("<block_item:bi> " + bi); :}
-	| block_item_list block_item
+	::= block_item:bi {: RESULT = bi; Console.logNT("541 <block_item:bi> " + bi); :}
+	| block_item_list:bil block_item:bi {: RESULT = bil; Console.logNT("542 <block_item_list:bil block_item:bi> " + bil + " " + bi); :}
 	;
 
 block_item
-	::= declaration:d {: Console.log("<declaration:d> " + d); :}
-	| statement:s {: Console.log("<statement:s> " + s); :}
+	::= declaration:d {: RESULT = d; Console.logNT("546 <declaration:d> " + d); :}
+	| statement:s {: Console.logNT("547 <statement:s> " + s); :}
 	;
 
 expression_statement
 	::= SEMICOLON
-	| expression SEMICOLON
+	| expression:e SEMICOLON {: RESULT = e; Console.logNT("<expression:e> " + e); :}
 	;
 
 selection_statement

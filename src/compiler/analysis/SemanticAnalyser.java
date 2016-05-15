@@ -11,8 +11,8 @@ import compiler.analysis.model.Type;
 public class SemanticAnalyser {
 	
 	//Tipos
-	//TODO:Contextos
-	//TODO:Checagem de tipos e contextos
+	//Contextos
+	//Checagem de tipos e contextos
 	//TODO:nome, quantidade e tipos de entrada e retorno
 	//declaracao e uso de variaveis
 	//comandos de atribuicao
@@ -22,9 +22,11 @@ public class SemanticAnalyser {
 	//expressoes relacionais, literais (int, char, bool)
 	//condicionais if-else
 	
+	public static ArrayList<String> parameterTL = new ArrayList<>();
 
 	public static HashMap<String, Type> variables = new HashMap<>();
-	public static HashMap<String, Type> localvariables = new HashMap<>();
+	public static HashMap<String, Type> localVariables = null;
+	
 	public static ArrayList<String> values = new ArrayList<String>();
 	public static ArrayList<Type> relationalTypes = new ArrayList<Type>();
 	public String nextVariable = null;
@@ -35,9 +37,12 @@ public class SemanticAnalyser {
 	}
 	
 	public void isSelectionStatementOK(Type expressionType) throws SemanticError{
-		Type bool = new Type("bool");
-		if(expressionType == null || (expressionType != null && !expressionType.equals(bool))){
-			throw new SemanticError("Erro no IF Statemente.");
+		if(expressionType != null){
+			if(!expressionType.equals(new Type("bool")) && !expressionType.equals(new Type("int"))){
+				throw new SemanticError(expressionType + " nao pode ser utilizado como expressao condicional!");
+			}
+		}else{
+			throw new SemanticError("Expressao dentro do { if } nao pode ser nula!");
 		}
 	}
 
@@ -112,10 +117,14 @@ public class SemanticAnalyser {
 		if(nextVariable != null){
 			if(variables.containsKey(nextVariable)){
 				throw new SemanticError("Identificador { " + nextVariable + " } ja esta em uso!");
+			}else if(localVariables != null){
+				if(localVariables.containsKey(nextVariable)){
+					throw new SemanticError("Identificador { " + nextVariable + " } ja esta em uso neste escopo!");
+				}
+				localVariables.put(nextVariable, type);
+			}else{
+				variables.put(nextVariable, type);
 			}
-			variables.put(nextVariable, type);
-			//System.out.println("variable name: " + nextVariable + " - variable type: " + variables.get(nextVariable));
-			//System.out.println("quantidade de variaveis: " + variables.size());
 		}
 		nextVariable = null;
 	}
@@ -126,20 +135,42 @@ public class SemanticAnalyser {
 				throw new SemanticError("Variavel { " + name + " } nao declarada!");
 			}
 		}
+		
 		return variables.get(name);
 	}
 	
-	public Type getTypeIfExists(String name) {
+	public Type getTypeIfExists(String name) throws SemanticError {
 		if(name != null){
-			if(variables.containsKey(name)){
+			if(localVariables != null && localVariables.containsKey(name)){
+				return localVariables.get(name);
+			}else if(variables.containsKey(name)){
 				return variables.get(name);
 			}
 		}
-		return null;
+		throw new SemanticError("Variavel { " + name + " } nao foi declarada previamente!" );
 	}
 	
-	public void addLocalVariable(){
-		
+	public void checkTypeOfSizeArray(Object o) throws SemanticError{
+		Type t = (Type)o;
+		if(!t.equals(new Type("int"))){
+			throw new SemanticError(t.toString() + " nao pode ser usado para declarar tamanho de array!");
+		}
+	}
+	
+	public void checkConsistencyInsideArray(Object o1, Object o2) throws SemanticError{
+		Type t1 = (Type) o1;
+		Type t2 = (Type) o2;
+		if(!t1.equals(t2)){
+			throw new SemanticError(t1.toString() + " e " + t2.toString() + " encontrados em um mesmo array!");
+		}
+	}
+	
+	public void addLocalvariable(String name, Type t){
+		localVariables.put(name, t);
+	}
+	
+	public void mudaEscopo(){
+		localVariables = new HashMap<String, Type>();
 	}
 	
 }
