@@ -29,7 +29,11 @@ void func(int x, int y){
 }
 
 int main(){
-  func(1,1);
+  //func(1,1);
+  char c='a';
+  char i[5] = {'j','o','s','e'};
+  char a = i[0]+1;
+  printf("%c\n", a);
 
 /*  int x = 0;
   float y = 0.0;

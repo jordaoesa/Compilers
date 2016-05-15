@@ -4,13 +4,10 @@
  */
 package compiler.analysis.generated;
 
-import java.util.ArrayList;
-
 import java_cup.runtime.*;
 import compiler.analysis.SemanticAnalyser;
 import compiler.analysis.model.Type;
 import compiler.analysis.model.Console;
-
 
 parser code {:
   
@@ -92,7 +89,7 @@ include
 	;
 
 primary_expression
-	::= IDENTIFIER:id {: RESULT = parser.sAnalyser.getTypeIfExists((String)id); if(RESULT == null) RESULT = id; Console.log("<IDENTIFIER:id> " + id); :}
+	::= IDENTIFIER:id {: RESULT = parser.sAnalyser.getTypeIfExists((String)id); if(RESULT == null) RESULT = id; Console.log("92 <IDENTIFIER:id> " + id); :}
 	| constant:ct {: RESULT = ct; Console.logNT("<constant:ct> " + ct); :}
 	| string:str {: RESULT = str; Console.logNT("<string:str> " + str); :}
 	| LEFT_PARENTESIS expression RIGHT_PARENTESIS
@@ -130,10 +127,10 @@ generic_association
 	;
 
 postfix_expression
-	::= primary_expression:pe {: RESULT = pe; Console.logNT("<primary_expression:pe> " + pe); :}
+	::= primary_expression:pe {: RESULT = pe; Console.logNT("130 <primary_expression:pe> " + pe); :}
 	| postfix_expression LEFT_SQ_BRACK expression RIGHT_SQ_BRACK
-	| postfix_expression LEFT_PARENTESIS RIGHT_PARENTESIS
-	| postfix_expression LEFT_PARENTESIS argument_expression_list RIGHT_PARENTESIS
+	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("132 <postfix_expression:pe LEFT_PARENTESIS RIGHT_PARENTESIS> " + pe + "()"); :}
+	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} argument_expression_list:ael RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("133 <postfix_expression:pe LEFT_PARENTESIS argument_expression_list:ael RIGHT_PARENTESIS> " + pe + "("+ael+")"); :}
 	| postfix_expression DOT IDENTIFIER
 	| postfix_expression PTR_OP IDENTIFIER
 	| postfix_expression INC_OP
@@ -143,15 +140,15 @@ postfix_expression
 	;
 
 argument_expression_list
-	::= assignment_expression
-	| argument_expression_list COMMA assignment_expression
+	::= assignment_expression:ae {: parser.sAnalyser.addTiposNaChamadaCorrente((Type)ae); RESULT = ae; Console.log("143 <assignment_expression:ae> " + ae); :}
+	| argument_expression_list:ael COMMA assignment_expression:ae {: parser.sAnalyser.addTiposNaChamadaCorrente((Type)ae); RESULT = ae; Console.log("144 <argument_expression_list:ael COMMA assignment_expression:ae> " + ael + " " + ae); :}
 	;
 
 unary_expression
-	::= postfix_expression:pe {: RESULT = pe; Console.logNT("<postfix_expression:pe> " + pe); :}
+	::= postfix_expression:pe {: RESULT = pe; Console.logNT("148 <postfix_expression:pe> " + pe); :}
 	| INC_OP unary_expression
 	| DEC_OP unary_expression
-	| unary_operator cast_expression
+	| unary_operator cast_expression {: System.err.println("negative value"); :}
 	| SIZEOF unary_expression
 	| SIZEOF LEFT_PARENTESIS type_name RIGHT_PARENTESIS
 	| ALIGNOF LEFT_PARENTESIS type_name RIGHT_PARENTESIS
@@ -159,9 +156,11 @@ unary_expression
 
 unary_operator
 	::= AND_BINARY
-	| TIMES
-	| PLUS
-	| MINUS
+	| TIMES:t {: RESULT = t; Console.log("159 <TIMES:t> " + t); :}
+	| DIV:d {: RESULT = d; Console.log("160 <DIV:d> " + d); :}
+	| MOD:m {: RESULT = m; Console.log("161 <MOD:m> " + m); :}
+	| PLUS:p {: RESULT = p; Console.log("160 <PLUS:p> " + p); :}
+	| MINUS:m {: RESULT = m; Console.log("161 <MINUS:m> " + m); :}
 	| NEG_BINARY
 	| NEG
 	;
@@ -173,15 +172,15 @@ cast_expression
 
 multiplicative_expression
 	::= cast_expression:ce {: RESULT = ce; Console.logNT("<cast_expression:ce> " + ce); :}
-	| multiplicative_expression TIMES cast_expression
-	| multiplicative_expression DIV cast_expression
-	| multiplicative_expression MOD cast_expression
+	| multiplicative_expression:me TIMES:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("173 <multiplicative_expression:me TIMES:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me DIV:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("174 <multiplicative_expression:me DIV:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me MOD:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("175 <multiplicative_expression:me MOD:op cast_expression:ce> " + me + op + ce); :}
 	;
 
 additive_expression
-	::= multiplicative_expression:me {: RESULT = me; Console.logNT("<multiplicative_expression:me> " + me); :}
-	| additive_expression PLUS multiplicative_expression
-	| additive_expression MINUS multiplicative_expression
+	::= multiplicative_expression:me {: RESULT = me; Console.logNT("179 <multiplicative_expression:me> " + me); :}
+	| additive_expression:ae PLUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); Console.logNT("180 <additive_expression:ae PLUS multiplicative_expression:me> " + ae + " " + me); :}
+	| additive_expression:ae MINUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); Console.logNT("181 <additive_expression:ae MINUS multiplicative_expression:me> " + ae + " " + me); :}
 	;
 
 shift_expression
@@ -254,7 +253,7 @@ assignment_operator
 	;
 
 expression
-	::= assignment_expression:ae {: RESULT = ae; Console.logNT("<assignment_expression:ae> " + ae); :}
+	::= assignment_expression:ae {: RESULT = ae; Console.logNT("254 <assignment_expression:ae> " + ae); :}
 	| expression COMMA assignment_expression 
 	;
 
@@ -263,9 +262,9 @@ constant_expression
 	;
 
 declaration
-	::= declaration_specifiers:de SEMICOLON
-	| declaration_specifiers:de init_declarator_list:idl SEMICOLON {: RESULT = de; Console.logNT("<declaration_specifiers:de> " + de + " <init_declarator_list:idl> " + idl); parser.sAnalyser.checkTypesDeclaration(de, idl); parser.sAnalyser.setNextVariableType((Type)de); :}
-	| static_assert_declaration
+	::= declaration_specifiers:de SEMICOLON 
+	| declaration_specifiers:de init_declarator_list:idl SEMICOLON {: RESULT = de; Console.logNT("264 <declaration_specifiers:de> " + de + " <init_declarator_list:idl> " + idl); parser.sAnalyser.checkTypesDeclaration(de, idl); parser.sAnalyser.setNextVariableType((Type)de); :}
+	| static_assert_declaration 
 	;
 
 declaration_specifiers
@@ -282,7 +281,7 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	::= init_declarator:id {: RESULT = id; Console.logNT("<init_declarator:id> " + id); :}
+	::= init_declarator:id {: RESULT = id; Console.logNT("282 <init_declarator:id> " + id); :}
 	| init_declarator_list COMMA init_declarator
 	;
 
@@ -415,8 +414,8 @@ direct_declarator
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list RIGHT_SQ_BRACK
 	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); Console.logNT("414 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
-	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: System.err.println(parser.sAnalyser.localVariables); Console.logNT("415 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
-	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; Console.log("416 <direct_declarator:dd> " + dd); :}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, parser.sAnalyser.localVariables); Console.logNT("415 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, null); Console.log("416 <direct_declarator:dd> " + dd); :}
 	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS 
 	;
 
@@ -435,12 +434,12 @@ type_qualifier_list
 
 parameter_type_list
 	::= parameter_list COMMA ELLIPSIS
-	| parameter_list {: Console.log("435"); :}
+	| parameter_list:pl {: RESULT = pl; Console.log("435 <parameter_list:pl> " + pl); :}
 	;
 
 parameter_list
-	::= parameter_declaration {: Console.log("439"); :}
-	| parameter_list COMMA parameter_declaration {: Console.log("440"); :}
+	::= parameter_declaration:pd {: RESULT = pd; Console.log("439 <parameter_declaration:pd> " + pd); :}
+	| parameter_list:pl COMMA parameter_declaration:pd {: Console.log("440"); :}
 	;
 
 parameter_declaration
@@ -521,12 +520,12 @@ static_assert_declaration
 	;
 
 statement
-	::= labeled_statement 
-	| compound_statement:cs {: RESULT = cs; Console.logNT("522 <compound_statement:cs> " + cs); :}
-	| expression_statement 
-	| selection_statement:ss {: Console.logNT("524 <selection_statement:ss> " + ss); :}
-	| iteration_statement 
-	| jump_statement 
+	::= labeled_statement:ls {: RESULT = new Type("void"); Console.logNT("521 <labeled_statement:ls> " + ls); :}
+	| compound_statement:cs {: RESULT = new Type("void"); Console.logNT("522 <compound_statement:cs> " + cs); :}
+	| expression_statement:es {: RESULT = new Type("void"); Console.logNT("523 <expression_statement:es> " + es); :}
+	| selection_statement:ss {: RESULT = new Type("void"); Console.logNT("524 <selection_statement:ss> " + ss); :}
+	| iteration_statement:is {: RESULT = new Type("void"); Console.logNT("525 <iteration_statement:is> " + is); :}
+	| jump_statement:js {: RESULT = js; Console.log("526 <jump_statement:js> " + js); :}
 	;
 
 labeled_statement
@@ -536,18 +535,18 @@ labeled_statement
 	;
 
 compound_statement
-	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = "vazio"; Console.log("536 <LEFT_BRACKET RIGHT_BRACKET>"); :}
-	| LEFT_BRACKET  block_item_list:bil RIGHT_BRACKET {: RESULT = bil; Console.log("537 <block_item_list:bil> [ " + bil + " ]"); :}
+	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = new Type("void"); parser.sAnalyser.mudaEscopo(); Console.log("536 <LEFT_BRACKET RIGHT_BRACKET>"); :}
+	| LEFT_BRACKET block_item_list:bil RIGHT_BRACKET {: RESULT = bil; parser.sAnalyser.mudaEscopo(); Console.log("537 <block_item_list:bil> { " + bil + " }"); :}
 	;
 
 block_item_list
 	::= block_item:bi {: RESULT = bi; Console.logNT("541 <block_item:bi> " + bi); :}
-	| block_item_list:bil block_item:bi {: RESULT = bil; Console.logNT("542 <block_item_list:bil block_item:bi> " + bil + " " + bi); :}
+	| block_item_list:bil block_item:bi {: RESULT = bi; Console.logNT("542 <block_item_list:bil block_item:bi> " + bil + " " + bi); :}
 	;
 
 block_item
-	::= declaration:d {: RESULT = d; Console.logNT("546 <declaration:d> " + d); :}
-	| statement:s {: Console.logNT("547 <statement:s> " + s); :}
+	::= declaration:d {: RESULT = new Type("void"); Console.logNT("546 <declaration:d> " + d); :}
+	| statement:s {: RESULT = s; Console.logNT("547 <statement:s> " + s); :}
 	;
 
 expression_statement
@@ -574,24 +573,24 @@ jump_statement
 	::= GOTO IDENTIFIER SEMICOLON
 	| CONTINUE SEMICOLON
 	| BREAK SEMICOLON
-	| RETURN SEMICOLON
-	| RETURN expression SEMICOLON
+	| RETURN SEMICOLON {: RESULT = new Type("void"); parser.sAnalyser.mudaEscopo(); Console.log("574 <RETURN SEMICOLON>"); :}
+	| RETURN expression:e SEMICOLON {: RESULT = e; parser.sAnalyser.mudaEscopo(); Console.logNT("575 <RETURN expression:e SEMICOLON> " + e); :}
 	;
 
 translation_unit
 	::= includes
-	| external_declaration:ed {: RESULT = ed; Console.logNT("<external_declaration:ed> " + ed); :}
-	| translation_unit:tu external_declaration:ed {: Console.logNT("<translation_unit:tu external_declaration:ed> " + tu + ed); :}
+	| external_declaration:ed {: RESULT = ed; Console.logNT("580 <external_declaration:ed> " + ed); :}
+	| translation_unit:tu external_declaration:ed {: Console.logNT("581 <translation_unit:tu external_declaration:ed> " + tu + ed); :}
 	;
 
 external_declaration
-	::= declaration:d {: RESULT = d; Console.logNT("<declaration:d> " + d); :}
-	| function_definition:fd {: RESULT = fd; Console.logNT("<function_definition:fd> " + fd); :}
+	::= declaration:d {: RESULT = d; Console.logNT("585 <declaration:d> " + d); :}
+	| function_definition:fd {: RESULT = fd; Console.logNT("586 <function_definition:fd> " + fd); :}
 	;
 
 function_definition
-	::= declaration_specifiers:ds declarator:d declaration_list:dl compound_statement:cs
-	| declaration_specifiers:ds declarator:d compound_statement:cs {: RESULT = d; Console.log("<declaration_specifiers:ds> " + ds + " <declarator:d> " + d + " <compound_statement:cs> " + cs); :}
+	::= declaration_specifiers:ds declarator:d declaration_list:dl compound_statement:cs 
+	| declaration_specifiers:ds declarator:d compound_statement:cs {: Console.log("591 <declaration_specifiers:ds> " + ds + " <declarator:d> " + d + " <compound_statement:cs> " + cs); parser.sAnalyser.addMetodo((String)d, (Type)ds); parser.sAnalyser.checkTipoDeRetornoMetodo((Type)ds, (Type)cs); :}
 	;
 
 declaration_list
