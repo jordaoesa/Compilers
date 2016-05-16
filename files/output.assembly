@@ -1,0 +1,14 @@
+100:	LD R0, 1
+108:	ST x, R0
+116:	LD R1, 'a'
+124:	ST c, R1
+132: metodo_vazio:
+140: main:
+148:	LD R2, 0
+156:	ST a, R2
+164:	LD R3, a
+172:	ST c, R3
+180:	LD R4, c
+188:	ST a, R4
+196:	LD R5, 1
+204:	ST a, R5

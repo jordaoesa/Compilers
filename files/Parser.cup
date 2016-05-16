@@ -1,22 +1,22 @@
 /**
  * Especificacao Sintatica
- * @author jordaoesa
+ * @author jordaoesa 16-27
  */
 package compiler.analysis.generated;
 
 import java_cup.runtime.*;
 import compiler.analysis.SemanticAnalyser;
+import compiler.analysis.CodeGenerator;
 import compiler.analysis.model.Type;
 import compiler.analysis.model.Console;
 
 parser code {:
   
   public static SemanticAnalyser sAnalyser = new SemanticAnalyser();
+  public static CodeGenerator cGenerator = new CodeGenerator();
   
   public void report_error(String message, Object info) {
-   
     StringBuffer m = new StringBuffer("Erro");
-   
     if (info instanceof java_cup.runtime.Symbol) {
   	  java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
       m.append(" na linha " + (s.left));
@@ -90,16 +90,16 @@ include
 
 primary_expression
 	::= IDENTIFIER:id {: RESULT = parser.sAnalyser.getTypeIfExists((String)id); if(RESULT == null) RESULT = id; Console.log("92 <IDENTIFIER:id> " + id); :}
-	| constant:ct {: RESULT = ct; Console.logNT("<constant:ct> " + ct); :}
-	| string:str {: RESULT = str; Console.logNT("<string:str> " + str); :}
+	| constant:ct {: RESULT = ct; Console.logNT("93 <constant:ct> " + ct); :}
+	| string:str {: RESULT = str; Console.logNT("94 <string:str> " + str); :}
 	| LEFT_PARENTESIS expression RIGHT_PARENTESIS
 	| generic_selection
 	;
 
 constant
-	::= I_CONSTANT:ict {: RESULT = new Type("int"); Console.log("<I_CONSTANT:ict> " + ict); :}		/* includes character_constant */
-	| F_CONSTANT:fct {: RESULT = new Type("float"); Console.log("<F_CONSTANT:fct> " + fct); :}
-	| C_CONSTANT:cct {: RESULT = new Type("char"); Console.log("<C_CONSTANT:cct> " + cct); :}
+	::= I_CONSTANT:ict {: RESULT = new Type("int", (String)ict); Console.log("100 <I_CONSTANT:ict> " + ict); :}		/* includes character_constant */
+	| F_CONSTANT:fct {: RESULT = new Type("float", (String)fct); Console.log("101 <F_CONSTANT:fct> " + fct); :}
+	| C_CONSTANT:cct {: RESULT = new Type("char", (String)cct); Console.log("102 <C_CONSTANT:cct> " + cct); :}
 	| ENUMERATION_CONSTANT	/* after it has been defined as such */
 	;
 
@@ -166,15 +166,15 @@ unary_operator
 	;
 
 cast_expression
-	::= unary_expression:ue {: RESULT = ue; Console.logNT("<unary_expression:ue> " + ue); :}
+	::= unary_expression:ue {: RESULT = ue; Console.logNT("169 <unary_expression:ue> " + ue); :}
 	| LEFT_PARENTESIS type_name RIGHT_PARENTESIS cast_expression
 	;
 
 multiplicative_expression
-	::= cast_expression:ce {: RESULT = ce; Console.logNT("<cast_expression:ce> " + ce); :}
-	| multiplicative_expression:me TIMES:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("173 <multiplicative_expression:me TIMES:op cast_expression:ce> " + me + op + ce); :}
-	| multiplicative_expression:me DIV:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("174 <multiplicative_expression:me DIV:op cast_expression:ce> " + me + op + ce); :}
-	| multiplicative_expression:me MOD:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("175 <multiplicative_expression:me MOD:op cast_expression:ce> " + me + op + ce); :}
+	::= cast_expression:ce {: RESULT = ce; Console.logNT("174 <cast_expression:ce> " + ce); :}
+	| multiplicative_expression:me TIMES:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("175 <multiplicative_expression:me TIMES:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me DIV:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("176 <multiplicative_expression:me DIV:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me MOD:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("177 <multiplicative_expression:me MOD:op cast_expression:ce> " + me + op + ce); :}
 	;
 
 additive_expression
@@ -184,62 +184,62 @@ additive_expression
 	;
 
 shift_expression
-	::= additive_expression:ae {: RESULT = ae; Console.logNT("<additive_expression:ae> " + ae); :}
-	| shift_expression LEFT_OP additive_expression {: Console.logNT("shift_expression LEFT_OP additive_expression: "); :}
-	| shift_expression RIGHT_OP additive_expression {: Console.logNT("shift_expression LEFT_OP additive_expression: "); :}
+	::= additive_expression:ae {: RESULT = ae; Console.logNT("187 <additive_expression:ae> " + ae); :}
+	| shift_expression LEFT_OP additive_expression {: Console.logNT("188 <shift_expression LEFT_OP additive_expression> "); :}
+	| shift_expression RIGHT_OP additive_expression {: Console.logNT("189 <shift_expression LEFT_OP additive_expression> "); :}
 	;
 
 relational_expression 
-	::= shift_expression:se {: RESULT = se; Console.logNT("<shift_expression:se> " + se); :}
-	| relational_expression:re LESS_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re GREATER_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re LE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression LE_OP shift_expression>"); :}
-	| relational_expression:re GE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("<relational_expression GE_OP shift_expression>"); :}
+	::= shift_expression:se {: RESULT = se; Console.logNT("193 <shift_expression:se> " + se); :}
+	| relational_expression:re LESS_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("194 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re GREATER_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("195 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re LE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("196 <relational_expression LE_OP shift_expression>"); :}
+	| relational_expression:re GE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("197 <relational_expression GE_OP shift_expression>"); :}
 	;
 
 equality_expression
-	::= relational_expression:re {: RESULT = re; Console.logNT("<relational_expression:re> " + re); :}
-	| equality_expression:ee EQ_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("<equality_expression EQ_OP relational_expression>"); :}
-	| equality_expression:ee NE_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("<equality_expression NE_OP relational_expression>"); :}
+	::= relational_expression:re {: RESULT = re; Console.logNT("201 <relational_expression:re> " + re); :}
+	| equality_expression:ee EQ_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("202 <equality_expression EQ_OP relational_expression>"); :}
+	| equality_expression:ee NE_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("203 <equality_expression NE_OP relational_expression>"); :}
 	;
 
 and_expression
-	::= equality_expression:ee {: RESULT = ee; Console.logNT("<equality_expression:ee> " + ee); :}
+	::= equality_expression:ee {: RESULT = ee; Console.logNT("207 <equality_expression:ee> " + ee); :}
 	| and_expression AND_BINARY equality_expression
 	;
 
 exclusive_or_expression
-	::= and_expression:ae {: RESULT = ae; Console.logNT("<and_expression:ae> " + ae); :}
+	::= and_expression:ae {: RESULT = ae; Console.logNT("212 <and_expression:ae> " + ae); :}
 	| exclusive_or_expression XOR_BINARY and_expression
 	;
 
 inclusive_or_expression
-	::= exclusive_or_expression:ee {: RESULT = ee; Console.logNT("<exclusive_or_expression:ee> " + ee); :}
+	::= exclusive_or_expression:ee {: RESULT = ee; Console.logNT("217 <exclusive_or_expression:ee> " + ee); :}
 	| inclusive_or_expression OR_BINARY exclusive_or_expression
 	;
 
 logical_and_expression
-	::= inclusive_or_expression:ie {: RESULT = ie; Console.logNT("<inclusive_or_expression:ie> " + ie); :}
+	::= inclusive_or_expression:ie {: RESULT = ie; Console.logNT("222 <inclusive_or_expression:ie> " + ie); :}
 	| logical_and_expression AND_OP inclusive_or_expression
 	;
 
 logical_or_expression
-	::= logical_and_expression:le {: RESULT = le; Console.logNT("<logical_and_expression:le> " + le); :}
+	::= logical_and_expression:le {: RESULT = le; Console.logNT("227 <logical_and_expression:le> " + le); :}
 	| logical_or_expression OR_OP logical_and_expression
 	;
 
 conditional_expression
-	::= logical_or_expression:le {: RESULT = le; Console.logNT("<logical_or_expression:le> " + le); :}
+	::= logical_or_expression:le {: RESULT = le; Console.logNT("232 <logical_or_expression:le> " + le); :}
 	| logical_or_expression QUESTION expression COLON conditional_expression
 	;
 
 assignment_expression
-	::= conditional_expression:ce {: RESULT = ce; Console.logNT("<conditional_expression:ce> " + ce); :}
-	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: RESULT = ao; parser.sAnalyser.checkTypesDeclaration(ue, ae); :}
+	::= conditional_expression:ce {: RESULT = ce; Console.logNT("237 <conditional_expression:ce> " + ce); :}
+	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: RESULT = ao; parser.sAnalyser.checkTypesDeclaration(ue, ae); parser.cGenerator.loadAndStoreValuesAssignment(ue, ae); :}
 	;
 
 assignment_operator
-	::= ASSIGNMENT:a {: RESULT = a; Console.log("<ASSIGNMENT:a> " + a); :}
+	::= ASSIGNMENT:a {: RESULT = a; Console.log("242 <ASSIGNMENT:a> " + a); :}
 	| MUL_ASSIGN
 	| DIV_ASSIGN
 	| MOD_ASSIGN
@@ -253,7 +253,7 @@ assignment_operator
 	;
 
 expression
-	::= assignment_expression:ae {: RESULT = ae; Console.logNT("254 <assignment_expression:ae> " + ae); :}
+	::= assignment_expression:ae {: RESULT = ae; Console.logNT("256 <assignment_expression:ae> " + ae); :}
 	| expression COMMA assignment_expression 
 	;
 
@@ -270,8 +270,8 @@ declaration
 declaration_specifiers
 	::= storage_class_specifier declaration_specifiers
 	| storage_class_specifier
-	| type_specifier:ts declaration_specifiers:ds {: RESULT = ts; Console.logNT("<type_specifier:ts> " + ts + " <declaration_specifiers:ds> " + ds); :}
-	| type_specifier:ts {: RESULT = ts; Console.logNT("<type_specifier:ts> " + ts); parser.sAnalyser.setNextVariableType((Type)ts); :}
+	| type_specifier:ts declaration_specifiers:ds {: RESULT = ts; Console.logNT("273 <type_specifier:ts> " + ts + " <declaration_specifiers:ds> " + ds); :}
+	| type_specifier:ts {: RESULT = ts; Console.logNT("274 <type_specifier:ts> " + ts); parser.sAnalyser.setNextVariableType((Type)ts); :}
 	| type_qualifier declaration_specifiers
 	| type_qualifier
 	| function_specifier declaration_specifiers
@@ -286,7 +286,7 @@ init_declarator_list
 	;
 
 init_declarator
-	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("287 <declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; :}
+	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("287 <declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; ((Type)i).setOwnerId((String)d); parser.cGenerator.loadAndStoreVariable((Type)i); :}
 	| declarator:d {: RESULT = d; Console.logNT("288 <declarator:d> " + d); parser.sAnalyser.nextVariable = (String)d; :}
 	;
 
@@ -403,7 +403,7 @@ declarator
 	;
 
 direct_declarator
-	::= IDENTIFIER:i {: RESULT = i; Console.log("404 <IDENTIFIER:i> " + i); :}
+	::= IDENTIFIER:i {: RESULT = i; Console.log("406 <IDENTIFIER:i> " + i); :}
 	| LEFT_PARENTESIS declarator RIGHT_PARENTESIS 
 	| direct_declarator LEFT_SQ_BRACK RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK TIMES RIGHT_SQ_BRACK
@@ -413,9 +413,9 @@ direct_declarator
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list STATIC assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list RIGHT_SQ_BRACK
-	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); Console.logNT("414 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
-	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, parser.sAnalyser.localVariables); Console.logNT("415 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
-	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, null); Console.log("416 <direct_declarator:dd> " + dd); :}
+	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); Console.logNT("416 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, parser.sAnalyser.localVariables); parser.cGenerator.createMethodAndParams((String)dd, parser.sAnalyser.localVariables); Console.logNT("417 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, null);parser.cGenerator.createMethodAndParams((String)dd, null); Console.log("418 <direct_declarator:dd> " + dd); :}
 	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS 
 	;
 
@@ -443,7 +443,7 @@ parameter_list
 	;
 
 parameter_declaration
-	::= declaration_specifiers:ds declarator:d {: parser.sAnalyser.addLocalvariable((String)d, (Type)ds); Console.log("444 <declaration_specifiers declarator> " + ds + " " + d); :}
+	::= declaration_specifiers:ds declarator:d {: ((Type)ds).setOwnerId((String)d); parser.sAnalyser.addLocalvariable((String)d, (Type)ds); Console.log("444 <declaration_specifiers declarator> " + ds + " " + d); :}
 	| declaration_specifiers abstract_declarator 
 	| declaration_specifiers 
 	;

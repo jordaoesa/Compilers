@@ -13,14 +13,17 @@ public class Main {
 		
 		try{
 			Lexer lexer = new Lexer(new FileReader(prog));
-			System.out.println(">> Successfull Lexical Analysis");
+			System.out.println(">> Successful Lexical Analysis");
 			Parser p = new Parser(lexer);
 			// Object result = p.parse().value;
 			Symbol s = p.parse();
-			System.out.println(">> Successfull Sintatic and Semantic Analysis");
+			System.out.println(">> Successful Sintatic and Semantic Analysis");
 			
 			if(s.toString().equals("#0")){
-				System.out.println("> Successfull Compilation: " + prog);
+				
+				p.cGenerator.writeFile();
+				
+				System.out.println("> Successful Compilation: " + prog);
 			}else{
 				System.out.println(s.toString());
 			}

@@ -22,8 +22,6 @@ public class SemanticAnalyser {
 	//expressoes relacionais, literais (int, char, bool)
 	//condicionais if-else
 	
-	public static ArrayList<String> parameterTL = new ArrayList<>();
-
 	public static HashMap<String, Type> variables = new HashMap<>();
 	public static HashMap<String, Type> localVariables = null;
 	
@@ -164,9 +162,13 @@ public class SemanticAnalyser {
 	public Type getTypeIfExists(String name) throws SemanticError {
 		if(name != null){
 			if(localVariables != null && localVariables.containsKey(name)){
-				return localVariables.get(name);
+				Type type = localVariables.get(name);
+				type.setOwnerId(name);
+				return type;
 			}else if(variables.containsKey(name)){
-				return variables.get(name);
+				Type type = variables.get(name);
+				type.setOwnerId(name);
+				return type;
 			}else if(methods.containsKey(name)){
 				Type type = methods.get(name);
 				type.setOwnerId(name);

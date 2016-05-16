@@ -92,6 +92,27 @@ void main2(){
 }
 */
 
+int x = 1;
+char c = 'a';
+
+void metodo_vazio(){}
+
+int main(char c, int o){
+	int a = 0;
+	c = a;
+	a = c;
+	a = 1;
+	return 0;
+}
+
+
+
+
+
+
+
+
+
 
 
 
