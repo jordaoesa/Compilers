@@ -191,16 +191,16 @@ shift_expression
 
 relational_expression 
 	::= shift_expression:se {: RESULT = se; Console.logNT("193 <shift_expression:se> " + se); :}
-	| relational_expression:re LESS_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("194 <relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re GREATER_THAN shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("195 <relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re LE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("196 <relational_expression LE_OP shift_expression>"); :}
-	| relational_expression:re GE_OP shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("197 <relational_expression GE_OP shift_expression>"); :}
+	| relational_expression:re LESS_THAN:lt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("194 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re GREATER_THAN:gt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("195 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re LE_OP:le shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("196 <relational_expression LE_OP shift_expression>"); :}
+	| relational_expression:re GE_OP:ge shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("197 <relational_expression GE_OP shift_expression>"); :}
 	;
 
 equality_expression
 	::= relational_expression:re {: RESULT = re; Console.logNT("201 <relational_expression:re> " + re); :}
-	| equality_expression:ee EQ_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("202 <equality_expression EQ_OP relational_expression>"); :}
-	| equality_expression:ee NE_OP relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("203 <equality_expression NE_OP relational_expression>"); :}
+	| equality_expression:ee EQ_OP:eq relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); parser.cGenerator.createCodeForIF((Type)ee, (Type)re, (String)eq); Console.logNT("202 <equality_expression EQ_OP relational_expression>"); :}
+	| equality_expression:ee NE_OP:ne relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("203 <equality_expression NE_OP relational_expression>"); :}
 	;
 
 and_expression
@@ -413,9 +413,9 @@ direct_declarator
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list STATIC assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list assignment_expression RIGHT_SQ_BRACK
 	| direct_declarator LEFT_SQ_BRACK type_qualifier_list RIGHT_SQ_BRACK
-	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); Console.logNT("416 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
+	| direct_declarator:dd LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK {: RESULT = dd; parser.sAnalyser.checkTypeOfSizeArray(ae); parser.cGenerator.nextArraySize = ((Type)ae).getValue(); Console.logNT("416 <LEFT_SQ_BRACK assignment_expression:ae RIGHT_SQ_BRACK> [ " + ae + " ]");:}
 	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} parameter_type_list:ptl RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, parser.sAnalyser.localVariables); parser.cGenerator.createMethodAndParams((String)dd, parser.sAnalyser.localVariables); Console.logNT("417 <direct_declarator LEFT_PARENTESIS parameter_type_list RIGHT_PARENTESIS> " + dd + " " + ptl); :}
-	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, null);parser.cGenerator.createMethodAndParams((String)dd, null); Console.log("418 <direct_declarator:dd> " + dd); :}
+	| direct_declarator:dd LEFT_PARENTESIS {: parser.sAnalyser.mudaEscopo(); :} RIGHT_PARENTESIS {: RESULT = dd; parser.sAnalyser.addMetodoEParametros((String)dd, null); parser.cGenerator.createMethodAndParams((String)dd, null); Console.log("418 <direct_declarator:dd> " + dd); :}
 	| direct_declarator LEFT_PARENTESIS identifier_list RIGHT_PARENTESIS 
 	;
 

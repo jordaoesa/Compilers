@@ -98,10 +98,25 @@ char c = 'a';
 void metodo_vazio(){}
 
 int main(char c, int o){
-	int a = 0;
+	/*int a = 0;
 	c = a;
 	a = c;
 	a = 1;
+	int array[4] = {1,2,3};
+	
+	char nome[15] = {'1','d'};
+	
+	x = array[0];
+	array[0] = x;*/
+	
+	if(o == 1){
+		int i_if = 0;
+		i_if = 2;
+	}else{
+		int i_else = 1;
+	}
+	
+	
 	return 0;
 }
 
