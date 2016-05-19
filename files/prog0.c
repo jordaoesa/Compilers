@@ -91,14 +91,14 @@ void main2(){
 	char c = array[0] + nome[1];
 }
 */
-
+/*
 int x = 1;
 char c = 'a';
 
 void metodo_vazio(){}
 
 int main(char c, int o){
-	/*int a = 0;
+	int a = 0;
 	c = a;
 	a = c;
 	a = 1;
@@ -107,7 +107,7 @@ int main(char c, int o){
 	char nome[15] = {'1','d'};
 	
 	x = array[0];
-	array[0] = x;*/
+	array[0] = x;
 	
 	if(o == 1){
 		int i_if = 0;
@@ -118,6 +118,16 @@ int main(char c, int o){
 	
 	
 	return 0;
+}
+*/
+
+void main(){
+	int x = 1;
+	if(x){
+		int y = x;
+	}else{
+		int z = 1;
+	}
 }
 
 

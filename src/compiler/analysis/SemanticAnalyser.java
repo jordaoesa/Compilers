@@ -37,7 +37,14 @@ public class SemanticAnalyser {
 		relationalTypes = new ArrayList<>(Arrays.asList(new Type("int"), new Type("char"), new Type("bool"), new Type("float"), new Type("double")));
 	}
 	
-	public void isSelectionStatementOK(Type expressionType) throws SemanticError{
+	public void isSelectionStatementOK(Object type) throws SemanticError{
+		Type expressionType = null;
+		try{
+			expressionType = (Type) type;
+		}catch(Exception e){
+			throw new SemanticError("Expressao dentro do { if } nao pode { " + type + " }!");
+		}
+		
 		if(expressionType != null){
 			if(!expressionType.equals(new Type("bool")) && !expressionType.equals(new Type("int"))){
 				throw new SemanticError(expressionType + " nao pode ser utilizado como expressao condicional!");
@@ -51,9 +58,27 @@ public class SemanticAnalyser {
 		if(!relationalTypes.contains(e1) || !relationalTypes.contains(e2)){
 			throw new SemanticError("Operacao relacional nao se aplica a "+e1.toString()+" ou a "+e2.toString());
 		}
-		/*else if(!e1.equals(e2)){
-			throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
-		}*/
+		else if(!e1.equals(e2)){
+			
+			if(e1.equals(new Type("bool")) && !e2.equals(new Type("int"))){
+				throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
+			}
+			else if(e1.equals(new Type("int"))){
+				if(!(e2.equals(new Type("char")) || e2.equals(new Type("bool")))){
+					throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
+				}
+			}
+			else if(e1.equals(new Type("float")) && !e2.equals(new Type("double"))){
+				throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
+			}
+			else if(e1.equals(new Type("double")) && !e2.equals(new Type("float"))){
+				throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
+			}
+			else if(e1.equals(new Type("char")) && !e2.equals(new Type("int"))){
+				throw new SemanticError("Voce nao pode comparar o tipo "+e1.toString()+" com o tipo "+e2.toString());
+			}
+			
+		}
 		
 		return new Type("bool");
 	}

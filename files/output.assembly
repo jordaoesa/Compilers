@@ -1,59 +1,7 @@
-100:	LD R0, 1
-108:	ST x, R0
-116:	LD R1, 1
-124:	ST be, R1
-132:	LD R2, 2
-140:	ST fe, R2
-148:	LD R3, 2.0
-156:	ST ii, R3
-164:	LD R4, 'a'
-172:	ST ce, R4
-180: funcao1:
-188:	LD R5, 10
-196:	ST inteiro, R5
-204:	LD R6, 1
-212:	ST oii, R6
-220:	LD R7, oi
-228:	ST inteiro, R7
-236:	LD R8, null
-244:	ST xx, R8
-252:	LD R9, 0
-260:	ST bb, R9
-268:	LD R10, 'j'
-276:	ST nome, R10
-284:	LD R11, 1
-292:	ST array, R11
-300:	LD R12, 2.0
-308:	ST d, R12
-316: fun:
-324: func:
-332: babou:
-340:	LD R13, oi
-348:	LD R14, 2
-356:	SUB R15, R13, R14
-364:	BEQZ R15, 372
-372:	LD R16, 1
-380:	ST xx, R16
-388: funcao:
-396: fn1:
-404: metodo:
-412:	LD R17, 'a'
-420:	ST letra, R17
-428:	LD R18, null
-436:	ST xx, R18
-444:	LD R19, 0
-452:	ST asdfgh, R19
-460:	LD R20, null
-468:	ST lala, R20
-476: fn:
-484: method:
-492:	LD R21, null
-500:	ST add, R21
-508: main:
-516: main2:
-524:	LD R22, 0
-532:	ST array, R22
-540:	LD R23, 'j'
-548:	ST nome, R23
-556:	LD R24, null
-564:	ST c, R24
+100: main:
+108:	LD R0, 1
+116:	ST x, R0
+124:	LD R1, null
+132:	ST y, R1
+140:	LD R2, 1
+148:	ST z, R2
