@@ -92,12 +92,12 @@ primary_expression
 	::= IDENTIFIER:id {: RESULT = parser.sAnalyser.getTypeIfExists((String)id); if(RESULT == null) RESULT = id; Console.log("92 <IDENTIFIER:id> " + id); :}
 	| constant:ct {: RESULT = ct; Console.logNT("93 <constant:ct> " + ct); :}
 	| string:str {: RESULT = str; Console.logNT("94 <string:str> " + str); :}
-	| LEFT_PARENTESIS expression RIGHT_PARENTESIS
+	| LEFT_PARENTESIS expression RIGHT_PARENTESIS {: Console.logNT("95 <LEFT_PARENTESIS expression RIGHT_PARENTESIS>"); :}
 	| generic_selection
 	;
 
 constant
-	::= I_CONSTANT:ict {: RESULT = new Type("int", (String)ict); Console.log("100 <I_CONSTANT:ict> " + ict); :}		/* includes character_constant */
+	::= I_CONSTANT:ict {: RESULT = new Type("int", (String)ict); /*if(parser.sAnalyser.isIF2) parser.cGenerator.createCodeForIFNoRelationalExpression((Type)RESULT); parser.sAnalyser.isIF2=false;*/  Console.log("100 <I_CONSTANT:ict> " + ict); :}		/* includes character_constant */
 	| F_CONSTANT:fct {: RESULT = new Type("float", (String)fct); Console.log("101 <F_CONSTANT:fct> " + fct); :}
 	| C_CONSTANT:cct {: RESULT = new Type("char", (String)cct); Console.log("102 <C_CONSTANT:cct> " + cct); :}
 	| ENUMERATION_CONSTANT	/* after it has been defined as such */
@@ -129,8 +129,8 @@ generic_association
 postfix_expression
 	::= primary_expression:pe {: RESULT = pe; Console.logNT("130 <primary_expression:pe> " + pe); :}
 	| postfix_expression:pe LEFT_SQ_BRACK expression:e RIGHT_SQ_BRACK {: RESULT = pe; Console.logNT("131 <postfix_expression:pe LEFT_SQ_BRACK expression:e RIGHT_SQ_BRACK> " + pe + " " + e); :}
-	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("132 <postfix_expression:pe LEFT_PARENTESIS RIGHT_PARENTESIS> " + pe + "()"); :}
-	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} argument_expression_list:ael RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); Console.logNT("133 <postfix_expression:pe LEFT_PARENTESIS argument_expression_list:ael RIGHT_PARENTESIS> " + pe + "("+ael+")"); :}
+	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); parser.cGenerator.creatMethodCall(pe); Console.logNT("132 <postfix_expression:pe LEFT_PARENTESIS RIGHT_PARENTESIS> " + pe + "()"); :}
+	| postfix_expression:pe LEFT_PARENTESIS {: parser.sAnalyser.iniciaChamadaDeMetodo((Type)pe); :} argument_expression_list:ael RIGHT_PARENTESIS {: RESULT = pe; parser.sAnalyser.checaConsistenciaDeTiposChamada(((Type)pe).getOwnerId()); parser.cGenerator.creatMethodCall(pe); Console.logNT("133 <postfix_expression:pe LEFT_PARENTESIS argument_expression_list:ael RIGHT_PARENTESIS> " + pe + "("+ael+")"); :}
 	| postfix_expression DOT IDENTIFIER
 	| postfix_expression PTR_OP IDENTIFIER
 	| postfix_expression INC_OP
@@ -172,15 +172,15 @@ cast_expression
 
 multiplicative_expression
 	::= cast_expression:ce {: RESULT = ce; Console.logNT("174 <cast_expression:ce> " + ce); :}
-	| multiplicative_expression:me TIMES:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("175 <multiplicative_expression:me TIMES:op cast_expression:ce> " + me + op + ce); :}
-	| multiplicative_expression:me DIV:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("176 <multiplicative_expression:me DIV:op cast_expression:ce> " + me + op + ce); :}
-	| multiplicative_expression:me MOD:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); Console.logNT("177 <multiplicative_expression:me MOD:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me TIMES:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); ((Type)RESULT).setCurrentCode(parser.cGenerator.getCodeExpression((String)op, (Type)me, (Type)ce)); Console.logNT("175 <multiplicative_expression:me TIMES:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me DIV:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); ((Type)RESULT).setCurrentCode(parser.cGenerator.getCodeExpression((String)op, (Type)me, (Type)ce)); Console.logNT("176 <multiplicative_expression:me DIV:op cast_expression:ce> " + me + op + ce); :}
+	| multiplicative_expression:me MOD:op cast_expression:ce {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)me, (Type)ce); ((Type)RESULT).setCurrentCode(parser.cGenerator.getCodeExpression((String)op, (Type)me, (Type)ce)); Console.logNT("177 <multiplicative_expression:me MOD:op cast_expression:ce> " + me + op + ce); :}
 	;
 
 additive_expression
 	::= multiplicative_expression:me {: RESULT = me; Console.logNT("179 <multiplicative_expression:me> " + me); :}
-	| additive_expression:ae PLUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); Console.logNT("180 <additive_expression:ae PLUS multiplicative_expression:me> " + ae + " " + me); :}
-	| additive_expression:ae MINUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); Console.logNT("181 <additive_expression:ae MINUS multiplicative_expression:me> " + ae + " " + me); :}
+	| additive_expression:ae PLUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); ((Type)RESULT).setCurrentCode(parser.cGenerator.getCodeExpression((String)op, (Type)ae, (Type)me)); Console.logNT("180 <additive_expression:ae PLUS multiplicative_expression:me> " + ae + " " + me); :}
+	| additive_expression:ae MINUS:op multiplicative_expression:me {: RESULT = parser.sAnalyser.getTypeFromExpression((String)op, (Type)ae, (Type)me); ((Type)RESULT).setCurrentCode(parser.cGenerator.getCodeExpression((String)op, (Type)ae, (Type)me)); Console.logNT("181 <additive_expression:ae MINUS multiplicative_expression:me> " + ae + " " + me); :}
 	;
 
 shift_expression
@@ -191,16 +191,16 @@ shift_expression
 
 relational_expression 
 	::= shift_expression:se {: RESULT = se; Console.logNT("193 <shift_expression:se> " + se); :}
-	| relational_expression:re LESS_THAN:lt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("194 <relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re GREATER_THAN:gt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("195 <relational_expression LESS_THAN shift_expression>"); :}
-	| relational_expression:re LE_OP:le shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("196 <relational_expression LE_OP shift_expression>"); :}
-	| relational_expression:re GE_OP:ge shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); Console.logNT("197 <relational_expression GE_OP shift_expression>"); :}
+	| relational_expression:re LESS_THAN:lt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); parser.cGenerator.createCodeForIF((Type)re, (Type)se, (String)lt); Console.logNT("194 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re GREATER_THAN:gt shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); parser.cGenerator.createCodeForIF((Type)re, (Type)se, (String)gt); Console.logNT("195 <relational_expression LESS_THAN shift_expression>"); :}
+	| relational_expression:re LE_OP:le shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); parser.cGenerator.createCodeForIF((Type)re, (Type)se, (String)le); Console.logNT("196 <relational_expression LE_OP shift_expression>"); :}
+	| relational_expression:re GE_OP:ge shift_expression:se {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)re, (Type)se); parser.cGenerator.createCodeForIF((Type)re, (Type)se, (String)ge); Console.logNT("197 <relational_expression GE_OP shift_expression>"); :}
 	;
 
 equality_expression
 	::= relational_expression:re {: RESULT = re; Console.logNT("201 <relational_expression:re> " + re); :}
 	| equality_expression:ee EQ_OP:eq relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); parser.cGenerator.createCodeForIF((Type)ee, (Type)re, (String)eq); Console.logNT("202 <equality_expression EQ_OP relational_expression>"); :}
-	| equality_expression:ee NE_OP:ne relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); Console.logNT("203 <equality_expression NE_OP relational_expression>"); :}
+	| equality_expression:ee NE_OP:ne relational_expression:re {: RESULT = parser.sAnalyser.getRelationalExpressionType((Type)ee, (Type)re); parser.cGenerator.createCodeForIF((Type)ee, (Type)re, (String)ne); Console.logNT("203 <equality_expression NE_OP relational_expression>"); :}
 	;
 
 and_expression
@@ -230,12 +230,12 @@ logical_or_expression
 
 conditional_expression
 	::= logical_or_expression:le {: RESULT = le; Console.logNT("232 <logical_or_expression:le> " + le); :}
-	| logical_or_expression QUESTION expression COLON conditional_expression
+	| logical_or_expression QUESTION expression COLON conditional_expression {: Console.logNT("233 <logical_or_expression QUESTION expression COLON conditional_expression>"); :}
 	;
 
 assignment_expression
 	::= conditional_expression:ce {: RESULT = ce; Console.logNT("237 <conditional_expression:ce> " + ce); :}
-	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: RESULT = ao; parser.sAnalyser.checkTypesDeclaration(ue, ae); parser.cGenerator.loadAndStoreValuesAssignment(ue, ae); :}
+	| unary_expression:ue assignment_operator:ao assignment_expression:ae {: RESULT = ao; parser.sAnalyser.checkTypesDeclaration(ue, ae); if(((Type)ae).getCurrentCode() != null) parser.cGenerator.createExpressionCode(ue, ae); else parser.cGenerator.loadAndStoreValuesAssignment(ue, ae); :}
 	;
 
 assignment_operator
@@ -254,7 +254,7 @@ assignment_operator
 
 expression
 	::= assignment_expression:ae {: RESULT = ae; Console.logNT("256 <assignment_expression:ae> " + ae); :}
-	| expression COMMA assignment_expression 
+	| expression COMMA assignment_expression {: Console.logNT("257 <expression COMMA assignment_expression>"); :}
 	;
 
 constant_expression
@@ -286,7 +286,7 @@ init_declarator_list
 	;
 
 init_declarator
-	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("287 <declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; ((Type)i).setOwnerId((String)d); parser.cGenerator.loadAndStoreVariable((Type)i); :}
+	::= declarator:d ASSIGNMENT initializer:i {: RESULT = i; Console.logNT("287 <declarator:d> " + d + " = <initializer:i> " + i); parser.sAnalyser.nextVariable = (String)d; ((Type)i).setOwnerId((String)d); /*if(((Type)i) == null) ((Type)i).setValue((String)d);*/ if(((Type)i).getCurrentCode() != null) parser.cGenerator.createExpressionCode(new Type(null, null, (String)d), i); else parser.cGenerator.loadAndStoreVariable((Type)i); :}
 	| declarator:d {: RESULT = d; Console.logNT("288 <declarator:d> " + d); parser.sAnalyser.nextVariable = (String)d; :}
 	;
 
@@ -523,7 +523,7 @@ statement
 	::= labeled_statement:ls {: RESULT = new Type("void"); Console.logNT("521 <labeled_statement:ls> " + ls); :}
 	| compound_statement:cs {: RESULT = new Type("void"); Console.logNT("522 <compound_statement:cs> " + cs); :}
 	| expression_statement:es {: RESULT = new Type("void"); Console.logNT("523 <expression_statement:es> " + es); :}
-	| selection_statement:ss {: RESULT = new Type("void"); Console.logNT("524 <selection_statement:ss> " + ss); :}
+	| {: parser.sAnalyser.isIF = true; parser.sAnalyser.isIF2 = true; :} selection_statement:ss {: RESULT = new Type("void"); parser.sAnalyser.isIF = false; Console.logNT("524 <selection_statement:ss> " + ss); :}
 	| iteration_statement:is {: RESULT = new Type("void"); Console.logNT("525 <iteration_statement:is> " + is); :}
 	| jump_statement:js {: RESULT = js; Console.log("526 <jump_statement:js> " + js); :}
 	;
@@ -535,8 +535,8 @@ labeled_statement
 	;
 
 compound_statement
-	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = new Type("void"); parser.sAnalyser.mudaEscopo(); Console.log("536 <LEFT_BRACKET RIGHT_BRACKET>"); :}
-	| LEFT_BRACKET block_item_list:bil RIGHT_BRACKET {: RESULT = bil; parser.sAnalyser.mudaEscopo(); Console.log("537 <block_item_list:bil> { " + bil + " }"); :}
+	::= LEFT_BRACKET RIGHT_BRACKET {: RESULT = new Type("void"); if(!parser.sAnalyser.isIF) parser.sAnalyser.mudaEscopo(); Console.log("536 <LEFT_BRACKET RIGHT_BRACKET>"); :}
+	| LEFT_BRACKET block_item_list:bil RIGHT_BRACKET {: RESULT = bil; if(!parser.sAnalyser.isIF) parser.sAnalyser.mudaEscopo(); Console.log("537 <block_item_list:bil> { " + bil + " }"); :}
 	;
 
 block_item_list
@@ -551,12 +551,12 @@ block_item
 
 expression_statement
 	::= SEMICOLON
-	| expression:e SEMICOLON {: RESULT = e; Console.logNT("<expression:e> " + e); :}
+	| expression:e SEMICOLON {: RESULT = e; Console.logNT("554 <expression:e> " + e); :}
 	;
 
 selection_statement
-	::= IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement ELSE statement	{: parser.sAnalyser.isSelectionStatementOK((Type) e); :}
-	| IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement					{: parser.sAnalyser.isSelectionStatementOK((Type) e); :}
+	::= IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement ELSE {: parser.cGenerator.setPositionStartElse(); :} statement	{: Console.logNT("558 IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement ELSE statement"); parser.sAnalyser.isSelectionStatementOK((Type) e); :}
+	| IF LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement					{: parser.cGenerator.setPositionStartElse(); parser.sAnalyser.isSelectionStatementOK((Type) e); :}
 	| SWITCH LEFT_PARENTESIS expression:e RIGHT_PARENTESIS statement
 	;
 
@@ -590,7 +590,7 @@ external_declaration
 
 function_definition
 	::= declaration_specifiers:ds declarator:d declaration_list:dl compound_statement:cs 
-	| declaration_specifiers:ds declarator:d compound_statement:cs {: Console.log("591 <declaration_specifiers:ds> " + ds + " <declarator:d> " + d + " <compound_statement:cs> " + cs); parser.sAnalyser.addMetodo((String)d, (Type)ds); parser.sAnalyser.checkTipoDeRetornoMetodo((Type)ds, (Type)cs); :}
+	| declaration_specifiers:ds declarator:d compound_statement:cs {: Console.log("591 <declaration_specifiers:ds> " + ds + " <declarator:d> " + d + " <compound_statement:cs> " + cs); parser.sAnalyser.addMetodo((String)d, (Type)ds); parser.sAnalyser.checkTipoDeRetornoMetodo((Type)ds, (Type)cs); parser.cGenerator.finalizeMethod((Type)cs); :}
 	;
 
 declaration_list

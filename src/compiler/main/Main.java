@@ -9,7 +9,7 @@ import java_cup.runtime.Symbol;
 public class Main {
 
 	public static void main(String[] args) {
-		String prog = "files/prog0.c";
+		String prog = "files/input.c";
 		
 		try{
 			Lexer lexer = new Lexer(new FileReader(prog));

@@ -3,6 +3,7 @@ package compiler.analysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import compiler.analysis.generated.Lexer;
 import compiler.analysis.model.SemanticError;
@@ -32,6 +33,9 @@ public class SemanticAnalyser {
 	public static ArrayList<Type> relationalTypes = new ArrayList<Type>();
 	public String nextVariable = null;
 	public String nextMethodCall = null;
+	
+	public boolean isIF = false;
+	public boolean isIF2 = false;
 
 	public SemanticAnalyser() {
 		relationalTypes = new ArrayList<>(Arrays.asList(new Type("int"), new Type("char"), new Type("bool"), new Type("float"), new Type("double")));
@@ -185,18 +189,25 @@ public class SemanticAnalyser {
 	}
 	
 	public Type getTypeIfExists(String name) throws SemanticError {
+//		System.out.println("localVariables: " + localVariables);
+//		System.out.println("variables: " + variables);
+//		System.out.println("methods: " + methods);
+		
 		if(name != null){
 			if(localVariables != null && localVariables.containsKey(name)){
 				Type type = localVariables.get(name);
 				type.setOwnerId(name);
+				if(type.getValue() == null) type.setValue(name);
 				return type;
 			}else if(variables.containsKey(name)){
 				Type type = variables.get(name);
 				type.setOwnerId(name);
+				if(type.getValue() == null) type.setValue(name);
 				return type;
 			}else if(methods.containsKey(name)){
 				Type type = methods.get(name);
 				type.setOwnerId(name);
+				if(type.getValue() == null) type.setValue(name);
 				return type;
 			}
 		}
@@ -223,7 +234,7 @@ public class SemanticAnalyser {
 	}
 	
 	public void mudaEscopo(){
-		localVariables = new HashMap<String, Type>();
+		localVariables = new LinkedHashMap<String, Type>();
 	}
 	
 	public HashMap<String, Type> getMethods() {
@@ -248,7 +259,8 @@ public class SemanticAnalyser {
 			if(!methodParams.containsKey(name)){
 				methodParams.put(name, new ArrayList<Type>());
 			}
-			HashMap<String, Type> parametros = (HashMap<String, Type>) params;
+			//System.err.println(params);
+			HashMap<String, Type> parametros = (LinkedHashMap<String, Type>) params;
 			for(String n : parametros.keySet()){
 				methodParams.get(name).add(parametros.get(n));
 			}

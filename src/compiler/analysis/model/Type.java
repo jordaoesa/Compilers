@@ -5,6 +5,7 @@ public class Type {
 	private String name;
 	private String ownerId;
 	private String value;
+	private String currentCode;
 	
 	public Type(String name){
 		this.name = name;
@@ -12,6 +13,11 @@ public class Type {
 	public Type(String name, String value){
 		this.name = name;
 		this.value = value;
+	}
+	public Type(String name, String value, String ownerId){
+		this.name = name;
+		this.value = value;
+		this.ownerId = ownerId;
 	}
 
 	public String getName() {
@@ -47,6 +53,14 @@ public class Type {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	public String getCurrentCode() {
+		return currentCode;
+	}
+	
+	public void setCurrentCode(String currentCode) {
+		this.currentCode = currentCode;
 	}
 
 }
